@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meditation (冥想)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-violet-50 to-purple-100 min-h-screen">
+
+  <div class="max-w-md mx-auto pt-12 px-6">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-violet-700">🧘 Meditation (冥想)</h1>
+      <p class="text-violet-600 mt-2">Take a gentle moment for yourself</p>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-xl p-8 space-y-6">
+      <button onclick="play('/music/Angry01.mp3')" 
+              class="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-medium text-left px-6">
+        <span class="block text-lg">Working with Difficulties</span>
+        <span class="text-sm opacity-75">8-10 min • Calm anger and strong feelings</span>
+      </button>
+
+      <button onclick="play('/music/Sad01.mp3')" 
+              class="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-medium text-left px-6">
+        <span class="block text-lg">Compassionate Body Scan</span>
+        <span class="text-sm opacity-75">24 min • Gentle self-kindness when feeling sad</span>
+      </button>
+
+      <button onclick="play('/music/Happy01.mp3')" 
+              class="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-medium text-left px-6">
+        <span class="block text-lg">Loving Kindness Meditation</span>
+        <span class="text-sm opacity-75">11 min • Grow happiness and warmth</span>
+      </button>
+
+      <button onclick="play('/music/Neutral01.mp3')" 
+              class="w-full py-5 bg-violet-600 hover:bg-violet-700 text-white rounded-2xl font-medium text-left px-6">
+        <span class="block text-lg">Breathing Meditation</span>
+        <span class="text-sm opacity-75">5 min • Simple calm breathing</span>
+      </button>
+    </div>
+
+    <div class="text-center mt-10">
+      <a href="/mood.html" class="text-violet-600 hover:underline">← Back to Mood Detection</a>
+    </div>
+  </div>
+
+  <script>
+    function play(src) {
+      const audio = new Audio(src);
+      audio.play();
+      alert("Now playing: " + src.split('/').pop());
+    }
+  </script>
+</body>
+</html>

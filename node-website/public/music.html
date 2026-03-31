@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relaxing Music</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-pink-50 to-rose-50 min-h-screen">
+
+  <div class="max-w-md mx-auto pt-12 px-6">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-pink-700">🎵 Relaxing Music</h1>
+      <p class="text-pink-600 mt-2">Choose music according to your mood</p>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-xl p-8 space-y-6">
+
+      <!-- Angry / Release -->
+      <div>
+        <h2 class="text-xl font-semibold text-red-600 mb-3">When feeling Angry</h2>
+        <button onclick="play('/music/Release01.mp3')" class="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium mb-2">Release01 - Let Go</button>
+        <button onclick="play('/music/Release02.mp3')" class="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium mb-2">Release02 - Deep Calm</button>
+        <button onclick="play('/music/Release03.mp3')" class="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium">Release03 - Peaceful Piano</button>
+      </div>
+
+      <!-- Happy / Joy -->
+      <div>
+        <h2 class="text-xl font-semibold text-amber-600 mb-3">When feeling Happy</h2>
+        <button onclick="play('/music/Joy01.mp3')" class="w-full py-5 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-medium mb-2">Joy01 - Light Happy</button>
+        <button onclick="play('/music/Joy02.mp3')" class="w-full py-5 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-medium mb-2">Joy02 - Uplifting Piano</button>
+        <button onclick="play('/music/Joy03.mp3')" class="w-full py-5 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-medium">Joy03 - Gentle Joy</button>
+      </div>
+
+      <!-- Sad / Comfort -->
+      <div>
+        <h2 class="text-xl font-semibold text-slate-600 mb-3">When feeling Sad</h2>
+        <button onclick="play('/music/Comfort01.mp3')" class="w-full py-5 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-medium mb-2">Comfort01 - Gentle Comfort</button>
+        <button onclick="play('/music/Comfort02.mp3')" class="w-full py-5 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-medium mb-2">Comfort02 - Emotional Piano</button>
+        <button onclick="play('/music/Comfort03.mp3')" class="w-full py-5 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-medium">Comfort03 - Sad Piano</button>
+      </div>
+
+      <!-- Calm / Serenity -->
+      <div>
+        <h2 class="text-xl font-semibold text-emerald-600 mb-3">When feeling Calm</h2>
+        <button onclick="play('/music/Serenity01.mp3')" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium mb-2">Serenity01 - Peaceful</button>
+        <button onclick="play('/music/Serenity02.mp3')" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium mb-2">Serenity02 - Deep Calm</button>
+        <button onclick="play('/music/Serenity03.mp3')" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium">Serenity03 - Tranquility</button>
+      </div>
+
+    </div>
+
+    <div class="text-center mt-10">
+      <a href="/mood.html" class="text-pink-600 hover:underline">← Back to Mood Detection</a>
+    </div>
+  </div>
+
+  <script>
+    function play(src) {
+      const audio = new Audio(src);
+      audio.play().catch(() => {
+        alert("Cannot play this file. Please check the file name and location.");
+      });
+    }
+  </script>
+</body>
+</html>

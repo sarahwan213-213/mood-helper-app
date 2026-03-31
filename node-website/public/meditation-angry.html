@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meditation for Angry • Mood Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+  </style>
+</head>
+<body class="bg-[#f8f4f0] min-h-screen">
+  <div class="max-w-md mx-auto px-6 py-12">
+    <a href="/angry.html" class="inline-flex items-center gap-2 text-[#8c5a4a] mb-8">← Back to Angry</a>
+    <h1 class="text-4xl font-semibold text-[#8c5a4a] mb-2">Meditation for Angry</h1>
+    <p class="text-[#6b5c4f]">Only one can play at a time</p>
+
+    <div class="mt-10 space-y-6">
+
+      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold">Angry 1</h3>
+          <p class="text-sm text-[#8c5a4a]">Guided Anger Release • 8 minutes</p>
+          <p class="text-xs text-gray-500">This guided meditation helps you safely express and release anger without being overwhelmed by it.</p>
+        </div>
+        <button onclick="playMusic(this, '/music/Angry01.mp3', 'Angry 1')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold">Angry 2</h3>
+          <p class="text-sm text-[#8c5a4a]">Soften Anger Meditation • 10 minutes</p>
+          <p class="text-xs text-gray-500">A gentle practice to soften intense anger and bring inner peace.</p>
+        </div>
+        <button onclick="playMusic(this, '/music/Angry02.mp3', 'Angry 2')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold">Angry 3</h3>
+          <p class="text-sm text-[#8c5a4a]">RAIN Anger Meditation • 12 minutes</p>
+          <p class="text-xs text-gray-500">Uses the RAIN method (Recognize, Allow, Investigate, Nurture) to transform anger into understanding.</p>
+        </div>
+        <button onclick="playMusic(this, '/music/Angry03.mp3', 'Angry 3')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold">Angry 4</h3>
+          <p class="text-sm text-[#8c5a4a]">Transforming Anger Meditation • 10 minutes</p>
+          <p class="text-xs text-gray-500">Helps you turn anger into positive energy and restore inner calm.</p>
+        </div>
+        <button onclick="playMusic(this, '/music/Angry04.mp3', 'Angry 4')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold">Angry 5</h3>
+          <p class="text-sm text-[#8c5a4a]">Guided Anger Release & Forgiveness • 12 minutes</p>
+          <p class="text-xs text-gray-500">Guides you to acknowledge anger, forgive yourself and others, allowing emotions to settle.</p>
+        </div>
+        <button onclick="playMusic(this, '/music/Angry05.mp3', 'Angry 5')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
+      </div>
+
+      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold">Angry 6</h3>
+          <p class="text-sm text-[#8c5a4a]">RAIN Practice for Anger • 14 minutes</p>
+          <p class="text-xs text-gray-500">Helps you face anger with compassion and turn it into understanding.</p>
+        </div>
+        <button onclick="playMusic(this, '/music/Angry06.mp3', 'Angry 6')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
+      </div>
+
+    </div>
+
+    <div id="player-container" class="hidden mt-8 bg-white rounded-3xl p-6 shadow">
+      <div id="now-playing" class="text-center text-[#8c5a4a] font-medium mb-4"></div>
+      <div class="flex justify-between text-sm mb-2 text-gray-600">
+        <span id="current-time">0:00</span>
+        <span id="total-time">0:00</span>
+      </div>
+      <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+        <div id="progress" class="h-2 bg-[#d4b8a8] w-0 transition-all"></div>
+      </div>
+      <div class="flex gap-4">
+        <button onclick="togglePause()" id="pause-btn" class="flex-1 py-4 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Pause</button>
+        <button onclick="stopMusic()" class="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium">Stop</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="player" class="hidden"></audio>
+
+  <script>
+    let currentBtn = null;
+    let isPaused = false;
+    const player = document.getElementById('player');
+    const playerContainer = document.getElementById('player-container');
+    const nowPlaying = document.getElementById('now-playing');
+    const progressBar = document.getElementById('progress');
+    const currentTimeEl = document.getElementById('current-time');
+    const totalTimeEl = document.getElementById('total-time');
+    const pauseBtn = document.getElementById('pause-btn');
+
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = Math.floor(seconds % 60);
+      return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    }
+
+    function playMusic(btn, src, title) {
+      if (currentBtn && currentBtn !== btn) {
+        currentBtn.textContent = "Start";
+        currentBtn.classList.remove('bg-red-600');
+      }
+      player.pause();
+      player.src = src;
+      player.currentTime = 0;
+      player.play();
+
+      btn.textContent = "Playing";
+      btn.classList.add('bg-red-600');
+
+      playerContainer.classList.remove('hidden');
+      nowPlaying.innerHTML = `🎧 ${title}`;
+
+      currentBtn = btn;
+      isPaused = false;
+      pauseBtn.textContent = "Pause";
+
+      player.ontimeupdate = () => {
+        if (player.duration) {
+          const progress = (player.currentTime / player.duration) * 100;
+          progressBar.style.width = `${progress}%`;
+          currentTimeEl.textContent = formatTime(player.currentTime);
+          totalTimeEl.textContent = formatTime(player.duration);
+        }
+      };
+      player.onended = () => resetPlayer();
+    }
+
+    function togglePause() {
+      if (!player.src) return;
+      if (isPaused) {
+        player.play();
+        pauseBtn.textContent = "Pause";
+        isPaused = false;
+      } else {
+        player.pause();
+        pauseBtn.textContent = "Resume";
+        isPaused = true;
+      }
+    }
+
+    function stopMusic() {
+      player.pause();
+      player.currentTime = 0;
+      resetPlayer();
+    }
+
+    function resetPlayer() {
+      if (currentBtn) {
+        currentBtn.textContent = "Start";
+        currentBtn.classList.remove('bg-red-600');
+      }
+      playerContainer.classList.add('hidden');
+      currentBtn = null;
+      isPaused = false;
+    }
+
+    player.onpause = () => { if (!isPaused) resetPlayer(); };
+  </script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Dashboard • Mood Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+  </style>
+</head>
+<body class="bg-[#f8f4f0] min-h-screen">
+  <div class="max-w-4xl mx-auto px-6 py-12">
+    <a href="/mood.html" class="inline-flex items-center gap-2 text-[#6b8c7a] mb-8">← Back to Home</a>
+    <h1 class="text-4xl font-semibold text-[#5d4a3f]">Your Mood Dashboard</h1>
+    <p class="text-[#6b5c4f]">Full history with your notes</p>
+
+    <!-- Recent Entries -->
+    <div class="mt-10">
+      <h2 class="text-2xl font-semibold mb-4">Recent Entries</h2>
+      <div id="entries-list" class="space-y-4"></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+      <!-- Emotion Distribution (Pie Chart - real data) -->
+      <div class="bg-white rounded-3xl p-8">
+        <h3 class="font-semibold mb-6">Emotion Distribution</h3>
+        <canvas id="pieChart" height="320"></canvas>
+      </div>
+
+      <!-- Weekly Trend (Line Chart - NO NUMBERS, real moods) -->
+      <div class="bg-white rounded-3xl p-8">
+        <h3 class="font-semibold mb-6">Weekly Trend</h3>
+        <canvas id="lineChart" height="320"></canvas>
+      </div>
+    </div>
+
+    <button onclick="exportJournal()" class="mt-10 w-full py-5 bg-[#6b8c7a] text-white rounded-3xl text-lg font-medium">
+      📥 Export Full Journal as CSV
+    </button>
+  </div>
+
+  <script>
+    const journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
+
+    // Render recent entries (Date + Time + Mood + Note)
+    function renderEntries() {
+      const container = document.getElementById('entries-list');
+      if (journal.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">No entries yet. Start checking your mood!</p>';
+        return;
+      }
+      container.innerHTML = journal.slice(0, 8).map(entry => `
+        <div class="bg-white p-5 rounded-2xl flex justify-between items-center border border-[#e8d9c8]">
+          <div>
+            <span class="text-xs text-gray-500">${entry.datetime}</span><br>
+            <span class="font-medium text-xl">${entry.mood}</span>
+          </div>
+          <div class="text-right max-w-xs">
+            <p class="text-sm text-gray-600">${entry.note}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+    renderEntries();
+
+    // Emotion Distribution - Pie Chart (real saved data)
+    const counts = { Angry: 0, Sad: 0, Happy: 0, Calm: 0 };
+    journal.forEach(e => counts[e.mood] = (counts[e.mood] || 0) + 1);
+
+    new Chart(document.getElementById('pieChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Angry', 'Sad', 'Happy', 'Calm'],
+        datasets: [{ 
+          data: Object.values(counts), 
+          backgroundColor: ['#d4b8a8', '#b8c8d4', '#f0d4b0', '#b0c8b8'] 
+        }]
+      }
+    });
+
+    // Weekly Trend - Line Chart (NO NUMBERS, real moods)
+    const last7Days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      last7Days.push(d.toISOString().split('T')[0]);
+    }
+
+    const chartData = last7Days.map(date => {
+      const entry = journal.find(e => e.date === date);   
+      return entry ? entry.mood : null;
+    });
+
+    new Chart(document.getElementById('lineChart'), {
+      type: 'line',
+      data: {
+        labels: last7Days.map(d => d.slice(5)),   
+        datasets: [{
+          label: 'Mood',
+          data: chartData.map(mood => {
+            if (mood === "Angry") return 1;
+            if (mood === "Sad") return 2;
+            if (mood === "Happy") return 3;
+            if (mood === "Calm") return 4;
+            return null;
+          }),
+          borderColor: '#6b8c7a',
+          borderWidth: 3,
+          tension: 0.4,
+          pointBackgroundColor: chartData.map(mood => {
+            if (mood === "Angry") return '#d4b8a8';
+            if (mood === "Sad") return '#b8c8d4';
+            if (mood === "Happy") return '#f0d4b0';
+            if (mood === "Calm") return '#b0c8b8';
+            return '#e8d9c8';
+          }),
+          pointRadius: 7
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const index = context.dataIndex;
+                const mood = chartData[index];
+                return mood ? mood : "No data";
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            display: true,
+            ticks: {
+              callback: (value) => {
+                if (value === 1) return "Angry";
+                if (value === 2) return "Sad";
+                if (value === 3) return "Happy";
+                if (value === 4) return "Calm";
+                return "";
+              }
+            }
+          },
+          x: { grid: { color: '#f0ede5' } }
+        }
+      }
+    });
+
+    function exportJournal() {
+      let csv = "Date & Time,Mood,Note\n";
+      journal.forEach(e => csv += `${e.datetime},${e.mood},"${e.note}"\n`);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'mood_journal.csv';
+      link.click();
+    }
+  </script>
+</body>
+</html>

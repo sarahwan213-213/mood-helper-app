@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Streak • Mood Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+  </style>
+</head>
+<body class="bg-[#f8f4f0] min-h-screen flex items-center justify-center">
+  <div class="max-w-md mx-auto px-6 text-center">
+    <a href="/mood.html" class="inline-flex items-center gap-2 text-[#6b8c7a] mb-12">← Back to Home</a>
+
+    <h1 class="text-5xl font-light text-[#4a6b5a] mb-8">Your Daily Streak</h1>
+
+    <div class="bg-white rounded-3xl shadow-xl p-12">
+      <div id="streak-display" class="text-8xl font-light text-[#6b8c7a] mb-4"></div>
+      <p id="streak-text" class="text-2xl text-[#4a6b5a]"></p>
+    </div>
+
+    <p class="mt-10 text-[#6b5c4f]">Keep going! Every day you check in makes a difference 🌱</p>
+  </div>
+
+  <script>
+    function calculateStreak() {
+      let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
+      if (journal.length === 0) return 0;
+
+      journal.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+      let streak = 1;
+      let lastDate = new Date(journal[0].datetime.split(',')[0]);
+
+      for (let i = 1; i < journal.length; i++) {
+        let currentDate = new Date(journal[i].datetime.split(',')[0]);
+        let diffDays = (lastDate - currentDate) / (1000 * 60 * 60 * 24);
+        if (diffDays === 1) {
+          streak++;
+          lastDate = currentDate;
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    const streak = calculateStreak();
+    document.getElementById('streak-display').innerHTML = `${streak} <span class="text-6xl">🔥</span> day streak`;
+    document.getElementById('streak-text').innerHTML = streak >= 7 
+      ? "Amazing consistency! You're doing great 🌟" 
+      : "You're building a beautiful habit. Keep it up!";
+  </script>
+</body>
+</html>

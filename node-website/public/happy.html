@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy - Mood Helper</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #fdf4e8 0%, #f8e4c8 50%, #f5d9b0 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .illustration { position: absolute; opacity: 0.18; pointer-events: none; z-index: 0; animation: float 25s infinite linear; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <div class="illustration text-7xl" style="top: 18%; left: 12%;">🌼</div>
+  <div class="illustration text-6xl" style="top: 50%; right: 18%;">🌸</div>
+
+  <div class="max-w-md mx-auto pt-12 px-6 relative z-10">
+    <h1 class="text-4xl font-bold text-[#8c6f3a] text-center">You're feeling Happy! 🌟</h1>
+    <p class="text-center text-[#b89f6a] mt-3">Let's cherish and grow this beautiful feeling</p>
+
+    <div class="mt-10 space-y-4">
+      <button onclick="goTo('/meditation-happy.html')" class="w-full py-6 bg-[#f5d9b0] hover:bg-[#e8c89f] text-white font-medium rounded-3xl text-lg shadow">🧘 Meditation for Happy</button>
+      <button onclick="goTo('/music-happy.html')" class="w-full py-6 bg-[#f5d9b0] hover:bg-[#e8c89f] text-white font-medium rounded-3xl text-lg shadow">🎵 Play Music for Happy</button>
+      <button onclick="goTo('/workout-happy.html')" class="w-full py-6 bg-[#f5d9b0] hover:bg-[#e8c89f] text-white font-medium rounded-3xl text-lg shadow">🏃 Workout Video for Happy</button>
+    </div>
+
+    <div class="mt-12 bg-white rounded-3xl shadow p-6">
+      <p class="text-center text-[#5d4a3f] font-medium mb-4">Would you like to save this moment?</p>
+      <input id="note-input" type="text" placeholder="e.g. had a good day with friends" 
+             class="w-full px-5 py-4 bg-[#fdf4e8] border border-[#f5d9b0] rounded-2xl focus:outline-none text-gray-700 mb-4">
+      <button onclick="saveToJournal()" class="w-full py-4 bg-[#d4b89e] hover:bg-[#c9a98f] text-white font-medium rounded-2xl transition">
+        💾 Save to Mood Journal
+      </button>
+    </div>
+
+    <div class="text-center mt-12">
+      <a href="/mood.html" class="inline-flex items-center gap-2 text-[#b89f6a] hover:text-[#8c6f3a] font-medium">
+        ← Back to Mood Detection
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function goTo(page) { window.location.href = page; }
+    function saveToJournal() {
+      const note = document.getElementById('note-input').value.trim() || "";
+      const mood = "Happy";
+      const entry = { date: new Date().toISOString().split('T')[0], mood: mood, note: note, tag: "" };
+      let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
+      journal.unshift(entry);
+      localStorage.setItem('moodJournal', JSON.stringify(journal));
+      alert("✅ Saved to Mood Journal!");
+      document.getElementById('note-input').value = "";
+    }
+  </script>
+</body>
+</html>

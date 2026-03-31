@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Helper • Gentle Support for Your Emotions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+    .hero-bg { background: linear-gradient(135deg, #f8f4f0 0%, #e8f0e8 50%, #f0f4eb 100%); }
+    .emotion-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .emotion-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.15); }
+  </style>
+</head>
+<body class="bg-[#f8f4f0]">
+
+  <!-- Top Navigation -->
+  <nav class="bg-white border-b border-[#e8d9c8] fixed w-full z-50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <span class="text-3xl">🌿</span>
+        <span class="text-2xl font-semibold tracking-tight text-[#5d4a3f]">Mood Helper</span>
+      </div>
+      <div class="hidden md:flex items-center gap-10 text-base font-medium text-[#6b5c4f]">
+        <a href="/mood.html" class="nav-link">Home</a>
+        <a href="/how-to-start.html" class="nav-link">How to Start</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero-bg pt-32 pb-16 text-center">
+    <div class="max-w-4xl mx-auto px-6">
+      <h1 class="text-6xl md:text-7xl font-semibold tracking-tighter text-[#5d4a3f] leading-tight mb-6">
+        Find calm in every emotion
+      </h1>
+      <p class="text-2xl text-[#6b5c4f] mb-8">
+        Detect your mood • Get gentle support • Take care of your mental well-being
+      </p>
+      <button onclick="document.getElementById('take-photo-section').scrollIntoView({behavior: 'smooth'})"
+              class="bg-[#6b8c7a] hover:bg-[#5a7a68] text-white text-xl px-10 py-5 rounded-3xl transition shadow-md">
+        Let's check your mood now
+      </button>
+    </div>
+  </div>
+
+  <!-- Mood Selection -->
+  <div id="moods" class="max-w-7xl mx-auto px-8 py-4">
+    <h2 class="text-4xl font-semibold text-center mb-8 text-[#5d4a3f]">How are you feeling today?</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+      <a href="/angry.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
+        <img src="/images/angry.jpg" alt="Angry" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
+        <h3 class="font-semibold text-xl text-[#8c5a4a]">Angry</h3>
+        <p class="text-sm text-[#8c5a4a]/70">Click to see calming methods</p>
+      </a>
+
+      <a href="/sad.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
+        <img src="/images/sad.jpg" alt="Sad" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
+        <h3 class="font-semibold text-xl text-[#4a5c7a]">Sad</h3>
+        <p class="text-sm text-[#4a5c7a]/70">Click to see comforting methods</p>
+      </a>
+
+      <a href="/happy.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
+        <img src="/images/happy.jpg" alt="Happy" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
+        <h3 class="font-semibold text-xl text-[#8c6f4a]">Happy</h3>
+        <p class="text-sm text-[#8c6f4a]/70">Click to celebrate & maintain joy</p>
+      </a>
+
+      <a href="/calm.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
+        <img src="/images/calm.jpg" alt="Calm" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
+        <h3 class="font-semibold text-xl text-[#4a6b5a]">Calm</h3>
+        <p class="text-sm text-[#4a6b5a]/70">Click to deepen your peace</p>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- Take Photo Section -->
+  <div id="take-photo-section" class="max-w-md mx-auto px-6 pb-12">
+    <div class="bg-white rounded-3xl shadow-xl p-8 border border-[#e8d9c8]">
+      <h2 class="text-2xl font-semibold text-center text-[#5d4a3f] mb-6">Or check your mood now</h2>
+      <div class="relative bg-[#f0ede5] rounded-3xl overflow-hidden mb-8 border border-[#e8d9c8]">
+        <video id="video" autoplay playsinline class="w-full rounded-3xl"></video>
+        <canvas id="canvas" class="hidden"></canvas>
+      </div>
+      <div class="flex gap-4">
+        <button id="snap" class="flex-1 bg-[#6b8c7a] hover:bg-[#5a7a68] text-white font-medium py-5 rounded-2xl transition">📸 Take Photo</button>
+        <label class="flex-1 bg-[#e8d9c8] hover:bg-[#d4c4b0] text-[#5d4a3f] font-medium py-5 rounded-2xl transition text-center cursor-pointer">
+          📤 Upload Photo
+          <input type="file" id="upload" accept="image/*" class="hidden">
+        </label>
+      </div>
+
+      <div id="emotion-box" class="hidden mt-8 text-center">
+        <div id="mood-box" class="inline-block px-6 py-3 rounded-3xl text-xl font-semibold shadow-md mb-4"></div>
+        
+        <p class="text-sm text-[#8c7a6b] mb-3">AI got it wrong? Choose your real mood:</p>
+        <div class="grid grid-cols-4 gap-3 mb-6">
+          <button onclick="overrideMood('Angry')" class="py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl text-sm font-medium">Angry</button>
+          <button onclick="overrideMood('Sad')" class="py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl text-sm font-medium">Sad</button>
+          <button onclick="overrideMood('Happy')" class="py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl text-sm font-medium">Happy</button>
+          <button onclick="overrideMood('Calm')" class="py-3 bg-[#b0c8b8] hover:bg-[#a0b8a8] text-white rounded-2xl text-sm font-medium">Calm</button>
+        </div>
+
+        <input id="note-input" type="text" placeholder="How are you feeling today?" 
+               class="w-full px-6 py-4 bg-[#f0ede5] rounded-2xl text-[#5d4a3f] placeholder-[#8c7a6b] focus:outline-none mb-4">
+        
+        <button onclick="saveToJournal()" 
+                class="w-full py-4 bg-[#6b8c7a] hover:bg-[#5a7a68] text-white font-medium rounded-2xl">
+          💾 Save to Mood Journal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Tools -->
+  <div class="max-w-7xl mx-auto px-8 py-12 bg-white border-t border-[#e8d9c8]">
+    <h2 class="text-3xl font-semibold text-center mb-10 text-[#5d4a3f]">Quick Tools</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <a href="/streak.html" class="bg-[#e8f0e8] hover:bg-[#d0e0d8] p-8 rounded-3xl text-left transition">
+        <div class="text-4xl mb-4">🔥</div>
+        <h3 class="font-semibold text-[#4a6b5a]">Daily Streak & Motivation</h3>
+      </a>
+      <a href="/dashboard.html" class="bg-[#f0f4eb] hover:bg-[#e0e8d8] p-8 rounded-3xl text-left transition">
+        <div class="text-4xl mb-4">📈</div>
+        <h3 class="font-semibold text-[#4a6b5a]">Mood Trend Dashboard</h3>
+      </a>
+      <a href="/calendar.html" class="bg-[#f8f0e8] hover:bg-[#f0e0d8] p-8 rounded-3xl text-left transition">
+        <div class="text-4xl mb-4">📅</div>
+        <h3 class="font-semibold text-[#4a6b5a]">Mood History Calendar</h3>
+      </a>
+      <button onclick="showEmergency()" class="bg-[#f8e8e8] hover:bg-[#f0d8d8] p-8 rounded-3xl text-left transition">
+        <div class="text-4xl mb-4">🚨</div>
+        <h3 class="font-semibold text-[#8c4a4a]">Emergency Support</h3>
+      </button>
+    </div>
+  </div>
+
+  <!-- Emergency Support Modal -->
+  <div id="emergencyModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
+    <div class="bg-white rounded-3xl max-w-md w-full mx-4 p-8">
+      <h2 class="text-2xl font-semibold text-[#8c4a4a] mb-6">Emergency Support</h2>
+      <p class="text-[#6b5c4f] mb-8">You are not alone. Call anytime — someone is ready to listen.</p>
+      
+      <div class="space-y-6">
+        <div>
+          <a href="tel:23892222" class="block text-xl font-medium text-[#8c4a4a] hover:underline">2389 2222</a>
+          <p class="text-sm text-[#6b5c4f]">Samaritan Befrienders Hong Kong (防自殺協會) — 24-hour emotional support</p>
+        </div>
+        <div>
+          <a href="tel:28960000" class="block text-xl font-medium text-[#8c4a4a] hover:underline">2896 0000</a>
+          <p class="text-sm text-[#6b5c4f]">Shall We Talk (The Samaritans) — 24-hour youth & emotional support</p>
+        </div>
+      </div>
+
+      <button onclick="hideEmergency()" 
+              class="mt-10 w-full py-4 bg-gray-200 hover:bg-gray-300 text-[#5d4a3f] font-medium rounded-2xl">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Camera + AI detection 
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const snapBtn = document.getElementById('snap');
+    const uploadInput = document.getElementById('upload');
+    const emotionBox = document.getElementById('emotion-box');
+    const moodBox = document.getElementById('mood-box');
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+      .then(stream => video.srcObject = stream);
+
+    snapBtn.addEventListener('click', () => {
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => sendToServer(blob), 'image/jpeg', 0.85);
+    });
+
+    uploadInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (file) sendToServer(file);
+    });
+
+    let currentDetectedMood = "";
+
+    async function sendToServer(file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('http://localhost:5001/predict', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.emotion === "Neutral") data.emotion = "Calm";
+        currentDetectedMood = data.emotion;
+        emotionBox.classList.remove('hidden');
+
+        let colorClass = data.emotion === "Angry" ? "bg-[#d4b8a8] text-[#8c5a4a]" : 
+                         data.emotion === "Happy" ? "bg-[#f0d4b0] text-[#8c6f4a]" :
+                         data.emotion === "Sad" ? "bg-[#b8c8d4] text-[#4a5c7a]" : "bg-[#b0c8b8] text-[#4a6b5a]";
+        moodBox.className = `inline-block px-6 py-3 rounded-3xl text-xl font-semibold shadow-md ${colorClass}`;
+        moodBox.textContent = data.emotion;
+      } catch (err) {
+        moodBox.textContent = "Cannot connect to AI";
+      }
+    }
+
+    function overrideMood(newMood) {
+      currentDetectedMood = newMood;
+      let colorClass = newMood === "Angry" ? "bg-[#d4b8a8] text-[#8c5a4a]" : 
+                       newMood === "Happy" ? "bg-[#f0d4b0] text-[#8c6f4a]" :
+                       newMood === "Sad" ? "bg-[#b8c8d4] text-[#4a5c7a]" : "bg-[#b0c8b8] text-[#4a6b5a]";
+      moodBox.className = `inline-block px-6 py-3 rounded-3xl text-xl font-semibold shadow-md ${colorClass}`;
+      moodBox.textContent = newMood;
+    }
+
+    function saveToJournal() {
+      const note = document.getElementById('note-input').value.trim();
+      const mood = currentDetectedMood || "Calm";
+      const now = new Date();
+      const entry = {
+        datetime: now.toLocaleString('en-GB', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }),
+        mood: mood,
+        note: note || "No note"
+      };
+
+      let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
+      journal.unshift(entry);
+      localStorage.setItem('moodJournal', JSON.stringify(journal));
+
+      alert("✅ Saved to Mood Journal!");
+      document.getElementById('note-input').value = "";
+      document.getElementById('emotion-box').classList.add('hidden');
+    }
+
+    // Emergency Support Modal
+    function showEmergency() {
+      document.getElementById('emergencyModal').classList.remove('hidden');
+      document.getElementById('emergencyModal').classList.add('flex');
+    }
+
+    function hideEmergency() {
+      document.getElementById('emergencyModal').classList.add('hidden');
+      document.getElementById('emergencyModal').classList.remove('flex');
+    }
+  </script>
+</body>
+</html>

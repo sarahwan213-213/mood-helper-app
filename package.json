@@ -1,0 +1,45 @@
+{
+  "name": "mood-helper-electron",
+  "version": "1.0.0",
+  "description": "Electron wrapper for the Mood Helper app",
+  "author": "Mood Helper",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --mac"
+  },
+  "build": {
+    "asar": false,
+    "afterPack": "afterPack.js",
+    "appId": "com.cheukying.moodhelper",
+    "productName": "Mood Helper",
+    "mac": {
+      "target": ["dir"],
+      "category": "public.app-category.education",
+      "artifactName": "Mood Helper.app"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "node_modules/**/*",
+      "mood_api.py"
+    ],
+    "extraResources": [
+      {
+        "from": "node-website/public",
+        "to": "node-website/public"
+      },
+      {
+        "from": "mood_api.py",
+        "to": "mood_api.py"
+      }
+    ]
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "electron": "^26.0.0",
+    "electron-builder": "^24.6.0"
+  }
+}
