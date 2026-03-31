@@ -1,0 +1,26 @@
+node_modules
+
+# Python virtual environments
+venv/
+venv-embedded/
+venv-embedded-x64/
+
+# Build and distribution artifacts
+dist/
+*.dmg
+*.zip
+*.app/
+
+# Model checkpoints and datasets
+emotion_model/
+fer2013_4class/
+fer2013_dataset/
+my_emotion_model/
+*.safetensors
+*.pt
+*.pth
+*.arrow
+
+# macOS files
+.DS_Store
+
