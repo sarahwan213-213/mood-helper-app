@@ -1,125 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relaxing Music for Sad • Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Music for Sad • Mood Helper</title>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+    .mood-header { background: linear-gradient(135deg,#6366F1,#A78BFA); padding:1.5rem 1.25rem 1.25rem; }
+    .track-play-btn { background: linear-gradient(135deg,#6366F1,#A78BFA); color:#fff; }
+    .track-subtitle { color: #4338CA; }
+    .progress-fill   { background: linear-gradient(90deg,#6366F1,#A78BFA); }
+    .pause-btn { background: linear-gradient(135deg,#6366F1,#A78BFA); color:#fff; border:none; flex:1; padding:0.85rem; border-radius:14px; font-weight:700; cursor:pointer; font-size:1rem; }
+    .stop-btn  { background:rgba(99,102,241,0.1); color:#4338CA; border:1.5px solid rgba(99,102,241,0.25); flex:1; padding:0.85rem; border-radius:14px; font-weight:700; cursor:pointer; font-size:1rem; }
   </style>
 </head>
-<body class="bg-[#f8f4f0] min-h-screen">
-  <div class="max-w-md mx-auto px-6 py-12">
-    <a href="/sad.html" class="inline-flex items-center gap-2 text-[#4a5c7a] mb-8">← Back to Sad</a>
-    <h1 class="text-4xl font-semibold text-[#4a5c7a] mb-2">Relaxing Music for Sad</h1>
-    <p class="text-[#6b5c4f]">Only one can play at a time</p>
+<body class="with-bottom-nav">
 
-    <div class="mt-10 space-y-6">
+  <div class="mood-header">
+    <a href="/sad.html" class="back-btn" style="color:rgba(255,255,255,0.85);margin-bottom:0.75rem;display:inline-flex;">Back to Sad</a>
+    <h1 style="font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:0.2rem;">🎵 Music for Sad</h1>
+    <p style="color:rgba(255,255,255,0.8);font-size:0.88rem;">Only one track can play at a time</p>
+  </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 1</h3>
-          <p class="text-sm text-[#4a5c7a]">Gentle Piano • 6 minutes</p>
-          <p class="text-xs text-gray-500">Soft piano. Helps you feel understood and gently comforts your sadness.</p>
+  <div class="page-content" style="padding:1.5rem 0 4rem;">
+    <div class="container-sm">
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+        <div class="track-card fade-up" id="card-0">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort01.mp3', 'Comfort 1', 0)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 1</div>
+            <div class="track-subtitle">Gentle Piano • 6 minutes</div>
+            <div class="track-desc">Soft piano. Helps you feel understood and gently comforts your sadness.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort01.mp3', 'Comfort 1')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 2</h3>
-          <p class="text-sm text-[#4a5c7a]">Emotional Piano • 7 minutes</p>
-          <p class="text-xs text-gray-500">Deep emotional piano. Helps you release sadness and feel lighter.</p>
+        <div class="track-card fade-up-1" id="card-1">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort02.mp3', 'Comfort 2', 1)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 2</div>
+            <div class="track-subtitle">Emotional Piano • 7 minutes</div>
+            <div class="track-desc">Deep emotional piano. Helps you release sadness and feel lighter.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort02.mp3', 'Comfort 2')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 3</h3>
-          <p class="text-sm text-[#4a5c7a]">Sad Acoustic • 5 minutes</p>
-          <p class="text-xs text-gray-500">Gentle acoustic guitar. Helps you feel supported during sad moments.</p>
+        <div class="track-card fade-up-2" id="card-2">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort03.mp3', 'Comfort 3', 2)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 3</div>
+            <div class="track-subtitle">Sad Acoustic • 5 minutes</div>
+            <div class="track-desc">Gentle acoustic guitar. Helps you feel supported during sad moments.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort03.mp3', 'Comfort 3')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 4</h3>
-          <p class="text-sm text-[#4a5c7a]">Tearful Strings • 6 minutes</p>
-          <p class="text-xs text-gray-500">Soft strings and piano. Helps you process sadness and feel calmer.</p>
+        <div class="track-card fade-up-3" id="card-3">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort04.mp3', 'Comfort 4', 3)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 4</div>
+            <div class="track-subtitle">Tearful Strings • 6 minutes</div>
+            <div class="track-desc">Soft strings and piano. Helps you process sadness and feel calmer.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort04.mp3', 'Comfort 4')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 5</h3>
-          <p class="text-sm text-[#4a5c7a]">Melancholic Piano • 7 minutes</p>
-          <p class="text-xs text-gray-500">Beautiful melancholic piano. Helps you feel less alone in sadness.</p>
+        <div class="track-card fade-up-4" id="card-4">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort05.mp3', 'Comfort 5', 4)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 5</div>
+            <div class="track-subtitle">Melancholic Piano • 7 minutes</div>
+            <div class="track-desc">Beautiful melancholic piano. Helps you feel less alone in sadness.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort05.mp3', 'Comfort 5')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 6</h3>
-          <p class="text-sm text-[#4a5c7a]">Warm Healing Piano • 5 minutes</p>
-          <p class="text-xs text-gray-500">Warm healing piano. Helps you slowly feel more peaceful.</p>
+        <div class="track-card fade-up-5" id="card-5">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort06.mp3', 'Comfort 6', 5)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 6</div>
+            <div class="track-subtitle">Warm Healing Piano • 5 minutes</div>
+            <div class="track-desc">Warm healing piano. Helps you slowly feel more peaceful.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort06.mp3', 'Comfort 6')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 7</h3>
-          <p class="text-sm text-[#4a5c7a]">Gentle Sad Piano • 6 minutes</p>
-          <p class="text-xs text-gray-500">Gentle sad piano. Helps you accept your feelings and feel comforted.</p>
+        <div class="track-card fade-up" id="card-6">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort07.mp3', 'Comfort 7', 6)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 7</div>
+            <div class="track-subtitle">Gentle Sad Piano • 6 minutes</div>
+            <div class="track-desc">Gentle sad piano. Helps you accept your feelings and feel comforted.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort07.mp3', 'Comfort 7')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 8</h3>
-          <p class="text-sm text-[#4a5c7a]">Emotional Acoustic • 7 minutes</p>
-          <p class="text-xs text-gray-500">Soft acoustic guitar. Helps you feel supported and less heavy.</p>
+        <div class="track-card fade-up-1" id="card-7">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort08.mp3', 'Comfort 8', 7)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 8</div>
+            <div class="track-subtitle">Emotional Acoustic • 7 minutes</div>
+            <div class="track-desc">Soft acoustic guitar. Helps you feel supported and less heavy.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort08.mp3', 'Comfort 8')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Comfort 9</h3>
-          <p class="text-sm text-[#4a5c7a]">Healing Piano • 6 minutes</p>
-          <p class="text-xs text-gray-500">Healing piano melody. Helps you slowly feel hope and peace again.</p>
+        <div class="track-card fade-up-2" id="card-8">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Comfort09.mp3', 'Comfort 9', 8)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Comfort 9</div>
+            <div class="track-subtitle">Healing Piano • 6 minutes</div>
+            <div class="track-desc">Healing piano melody. Helps you slowly feel hope and peace again.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Comfort09.mp3', 'Comfort 9')" class="play-btn px-8 py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Start</button>
+
       </div>
 
-    </div>
-
-    <div id="player-container" class="hidden mt-8 bg-white rounded-3xl p-6 shadow">
-      <div id="now-playing" class="text-center text-[#4a5c7a] font-medium mb-4"></div>
-      <div class="flex justify-between text-sm mb-2 text-gray-600">
-        <span id="current-time">0:00</span>
-        <span id="total-time">0:00</span>
-      </div>
-      <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
-        <div id="progress" class="h-2 bg-[#b8c8d4] w-0 transition-all"></div>
-      </div>
-      <div class="flex gap-4">
-        <button onclick="togglePause()" id="pause-btn" class="flex-1 py-4 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl font-medium">Pause</button>
-        <button onclick="stopMusic()" class="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium">Stop</button>
+      <div id="player-container" class="player-bar hidden" style="margin-top:1.5rem;">
+        <div id="now-playing" style="font-weight:700;color:var(--text);margin-bottom:0.5rem;font-size:0.95rem;"></div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;">
+          <span id="current-time">0:00</span>
+          <span id="total-time">0:00</span>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button onclick="togglePause()" id="pause-btn" class="pause-btn">⏸ Pause</button>
+          <button onclick="stopMusic()" class="stop-btn">⏹ Stop</button>
+        </div>
       </div>
     </div>
   </div>
 
   <audio id="player" class="hidden"></audio>
 
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
+
   <script>
     let currentBtn = null;
+    let currentCardIndex = null;
     let isPaused = false;
     const player = document.getElementById('player');
     const playerContainer = document.getElementById('player-container');
@@ -135,26 +158,23 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    function playMusic(btn, src, title) {
+    function playMusic(btn, src, title, cardIndex) {
       if (currentBtn && currentBtn !== btn) {
-        currentBtn.textContent = "Start";
-        currentBtn.classList.remove('bg-red-600');
+        currentBtn.textContent = "▶";
+        if (currentCardIndex !== null) document.getElementById(`card-${currentCardIndex}`).classList.remove('playing');
       }
       player.pause();
       player.src = src;
       player.currentTime = 0;
       player.play();
-
-      btn.textContent = "Playing";
-      btn.classList.add('bg-red-600');
-
+      btn.textContent = "⏸";
+      document.getElementById(`card-${cardIndex}`).classList.add('playing');
       playerContainer.classList.remove('hidden');
       nowPlaying.innerHTML = `🎧 ${title}`;
-
       currentBtn = btn;
+      currentCardIndex = cardIndex;
       isPaused = false;
-      pauseBtn.textContent = "Pause";
-
+      pauseBtn.textContent = "⏸ Pause";
       player.ontimeupdate = () => {
         if (player.duration) {
           const progress = (player.currentTime / player.duration) * 100;
@@ -170,11 +190,13 @@
       if (!player.src) return;
       if (isPaused) {
         player.play();
-        pauseBtn.textContent = "Pause";
+        pauseBtn.textContent = "⏸ Pause";
+        if (currentBtn) currentBtn.textContent = "⏸";
         isPaused = false;
       } else {
         player.pause();
-        pauseBtn.textContent = "Resume";
+        pauseBtn.textContent = "▶ Resume";
+        if (currentBtn) currentBtn.textContent = "▶";
         isPaused = true;
       }
     }
@@ -186,12 +208,11 @@
     }
 
     function resetPlayer() {
-      if (currentBtn) {
-        currentBtn.textContent = "Start";
-        currentBtn.classList.remove('bg-red-600');
-      }
+      if (currentBtn) currentBtn.textContent = "▶";
+      if (currentCardIndex !== null) document.getElementById(`card-${currentCardIndex}`).classList.remove('playing');
       playerContainer.classList.add('hidden');
       currentBtn = null;
+      currentCardIndex = null;
       isPaused = false;
     }
 

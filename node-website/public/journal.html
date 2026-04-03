@@ -1,90 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Mood Journal</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>My Mood Journal • Mood Helper</title>
+  <link rel="stylesheet" href="/shared.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body {
-      background: linear-gradient(135deg, #f9f5eb 0%, #f0e9e0 50%, #e8f0e8 100%);
-      position: relative;
-      overflow: hidden;
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
     }
-    .illustration {
-      position: absolute;
-      opacity: 0.12;
-      pointer-events: none;
-      z-index: 0;
-      animation: float 35s infinite linear;
+    .streak-card {
+      background: linear-gradient(135deg, var(--primary), var(--primary-end));
+      border-radius: 24px;
+      padding: 2rem;
+      text-align: center;
+      color: #fff;
+      margin-bottom: 1.25rem;
     }
-    @keyframes float {
-      0% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-30px) rotate(6deg); }
-      100% { transform: translateY(0) rotate(0deg); }
+    .streak-number {
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.05em;
     }
+    .entry-item {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .entry-item:last-child { border-bottom: none; }
   </style>
 </head>
-<body class="min-h-screen">
+<body class="with-bottom-nav">
 
-  <!-- Gentle floating illustrations -->
-  <div class="illustration text-8xl" style="top: 10%; left: 8%;">🌿</div>
-  <div class="illustration text-7xl" style="top: 35%; right: 15%; animation-delay: -15s;">🌸</div>
-  <div class="illustration text-6xl" style="bottom: 25%; left: 20%; animation-delay: -22s;">🍃</div>
-
-  <div class="max-w-2xl mx-auto pt-12 px-6 relative z-10">
-    <!-- Back Button -->
-    <div class="flex items-center justify-between mb-8">
-      <a href="/mood.html" class="flex items-center gap-2 text-[#8c7a6b] hover:text-[#5d4a3f] font-medium">
-        ← Back to Mood Detection
-      </a>
-      <h1 class="text-4xl font-bold text-[#5d4a3f]">My Mood Journal</h1>
+  <!-- Header -->
+  <div class="page-header">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <a href="/mood.html" class="back-btn">Back</a>
+      <h1 style="font-size:1.2rem;font-weight:800;color:var(--text);">My Journal</h1>
     </div>
-
-    <!-- Daily Streak -->
-    <div class="bg-white rounded-3xl shadow-xl p-8 mb-10 text-center">
-      <p class="text-sm text-gray-500">Current Streak</p>
-      <p id="streak" class="text-6xl font-bold text-emerald-600 mt-2">0</p>
-      <p id="motivation" class="text-[#5d4a3f] mt-3 font-medium"></p>
-    </div>
-
-    <!-- Chart -->
-    <div class="bg-white rounded-3xl shadow-xl p-8 mb-10">
-      <h3 class="text-lg font-semibold text-gray-700 mb-4">Mood Trend (Last 7 Days)</h3>
-      <canvas id="moodChart" height="150"></canvas>
-    </div>
-
-    <!-- Insight -->
-    <div id="insight" class="bg-emerald-50 border border-emerald-200 rounded-3xl p-7 mb-10 text-center text-emerald-700 font-medium leading-relaxed"></div>
-
-    <!-- Emergency Button -->
-    <button onclick="showEmergency()" 
-            class="w-full py-5 bg-red-100 hover:bg-red-200 text-red-700 font-medium rounded-3xl text-lg shadow mb-10 flex items-center justify-center gap-3">
-      🚨 I Need Help Right Now
-    </button>
-
-    <!-- Export Button -->
-    <button onclick="exportJournal()" 
-            class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-3xl text-lg shadow mb-10">
-      📥 Export Journal as CSV
-    </button>
-
-    <!-- Clear All -->
-    <div class="flex justify-end mb-8">
-      <button onclick="clearAllJournal()" 
-              class="px-8 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-2xl text-sm font-medium transition">
-        🗑️ Clear All Journal
-      </button>
-    </div>
-
-    <!-- Entries -->
-    <h2 class="text-2xl font-semibold mb-6 text-[#5d4a3f]">Recent Entries</h2>
-    <div id="entries" class="space-y-5"></div>
-
   </div>
 
+  <div class="page-content" style="padding:1.5rem 0 4rem;">
+    <div class="container-sm">
+
+      <!-- Streak Card -->
+      <div class="streak-card fade-up">
+        <div style="font-size:0.85rem;font-weight:600;opacity:0.8;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.08em;">Current Streak</div>
+        <div class="streak-number"><span id="streak">0</span> 🔥</div>
+        <div id="motivation" style="margin-top:0.75rem;font-size:0.95rem;opacity:0.9;font-weight:500;"></div>
+      </div>
+
+      <!-- Insight Card -->
+      <div class="card fade-up-1" style="margin-bottom:1.25rem;background:linear-gradient(135deg,rgba(124,58,237,0.06),rgba(168,85,247,0.06));border-color:rgba(124,58,237,0.2);">
+        <div id="insight" style="text-align:center;color:var(--text-soft);line-height:1.6;font-size:0.95rem;font-weight:500;"></div>
+      </div>
+
+      <!-- Chart Card -->
+      <div class="card fade-up-2" style="margin-bottom:1.25rem;">
+        <h3 style="font-weight:700;font-size:1rem;margin-bottom:1rem;">Mood Trend (Last 7 Days)</h3>
+        <canvas id="moodChart" height="160"></canvas>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;" class="fade-up-3">
+        <button onclick="showEmergency()" class="btn btn-block btn-lg" style="background:rgba(239,68,68,0.1);color:#DC2626;border:1.5px solid rgba(239,68,68,0.25);border-radius:16px;">
+          🚨 I Need Help Right Now
+        </button>
+        <button onclick="exportJournal()" class="btn btn-primary btn-block btn-lg" style="border-radius:16px;">
+          📥 Export Journal as CSV
+        </button>
+        <button onclick="clearAllJournal()" class="btn btn-surface btn-block" style="border-radius:16px;font-size:0.88rem;color:#DC2626;border-color:rgba(239,68,68,0.2);">
+          🗑️ Clear All Journal
+        </button>
+      </div>
+
+      <!-- Entries -->
+      <h2 style="font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:1rem;" class="fade-up-4">Recent Entries</h2>
+      <div class="card fade-up-5" style="padding:0;overflow:hidden;">
+        <div id="entries"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item active"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
+
   <script>
+    function updateThemeBtn() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.getElementById('theme-icon').textContent = dark ? '☀️' : '🌙';
+    }
+    updateThemeBtn();
+
     let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
 
     function getMoodScore(mood) {
@@ -105,7 +133,6 @@
         const d = new Date(today);
         d.setDate(d.getDate() - i);
         labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
-
         const dayEntry = journal.find(e => e.date === d.toISOString().split('T')[0]);
         dataPoints.push(dayEntry ? getMoodScore(dayEntry.mood) : null);
       }
@@ -117,11 +144,12 @@
           datasets: [{
             label: 'Mood Level',
             data: dataPoints,
-            borderColor: '#8fb8a8',
-            backgroundColor: 'rgba(143, 184, 168, 0.15)',
+            borderColor: '#7C3AED',
+            backgroundColor: 'rgba(124,58,237,0.08)',
             tension: 0.4,
             borderWidth: 3,
-            pointRadius: 5
+            pointRadius: 5,
+            pointBackgroundColor: '#A855F7'
           }]
         },
         options: {
@@ -138,11 +166,9 @@
         insightEl.innerHTML = "Keep checking your mood daily.<br>Patterns will appear soon and help you understand yourself better 🌱";
         return;
       }
-
       const happyCalm = journal.filter(e => e.mood === "Happy" || e.mood === "Calm").length;
       const total = journal.length;
       const percentage = Math.round((happyCalm / total) * 100);
-
       if (percentage > 60) {
         insightEl.innerHTML = `You've had <strong>${percentage}%</strong> positive days recently.<br>You're building emotional resilience well!`;
       } else if (percentage < 30) {
@@ -155,17 +181,14 @@
     function updateStreak() {
       const streakEl = document.getElementById('streak');
       const motivationEl = document.getElementById('motivation');
-
       if (journal.length === 0) {
         streakEl.textContent = "0";
         motivationEl.textContent = "Start today — every check-in matters 🌱";
         return;
       }
-
       let streak = 1;
       let currentDate = new Date();
       currentDate.setDate(currentDate.getDate() - 1);
-
       for (let i = 1; i < journal.length; i++) {
         const entryDate = new Date(journal[i].date);
         if (entryDate.toISOString().split('T')[0] === currentDate.toISOString().split('T')[0]) {
@@ -175,47 +198,43 @@
           break;
         }
       }
-
       streakEl.textContent = streak;
-
       if (streak >= 7) {
-        motivationEl.innerHTML = `You've checked your mood for <strong>${streak} days in a row</strong> 🔥<br>Amazing consistency!`;
+        motivationEl.innerHTML = `${streak} days in a row 🔥 Amazing consistency!`;
       } else if (streak >= 3) {
-        motivationEl.innerHTML = `You've checked your mood for <strong>${streak} days in a row</strong>.<br>You're building a wonderful habit!`;
+        motivationEl.innerHTML = `${streak} days in a row — building a wonderful habit!`;
       } else {
-        motivationEl.innerHTML = "Every check-in is a step toward better self-awareness 🌱";
+        motivationEl.textContent = "Every check-in is a step toward better self-awareness 🌱";
       }
+    }
+
+    function getMoodBadgeClass(mood) {
+      if (mood === "Happy") return "badge-happy";
+      if (mood === "Calm")  return "badge-calm";
+      if (mood === "Sad")   return "badge-sad";
+      if (mood === "Angry") return "badge-angry";
+      return "badge-primary";
     }
 
     function renderEntries() {
       const container = document.getElementById('entries');
       container.innerHTML = '';
-
       if (journal.length === 0) {
-        container.innerHTML = `<p class="text-center text-gray-500 py-16">No entries yet.<br>Detect your mood and save to journal.</p>`;
+        container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2.5rem 1rem;">No entries yet.<br>Detect your mood and save to journal.</p>';
         return;
       }
-
       journal.forEach((entry) => {
         const div = document.createElement('div');
-        div.className = "bg-white rounded-3xl p-7 shadow border border-[#e8d9c8]";
+        div.className = 'entry-item';
         div.innerHTML = `
-          <div class="flex justify-between items-center">
-            <div class="text-sm text-gray-500">${entry.date}</div>
-            <span class="px-5 py-1 text-sm font-medium rounded-full ${getMoodColor(entry.mood)}">${entry.mood}</span>
+          <div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.25rem;">${entry.date || entry.datetime || ''}</div>
+            ${entry.note ? `<p style="color:var(--text);font-size:0.9rem;margin-top:0.2rem;">${entry.note}</p>` : ''}
           </div>
-          ${entry.note ? `<p class="mt-5 text-gray-700">${entry.note}</p>` : ''}
+          <span class="badge ${getMoodBadgeClass(entry.mood)}">${entry.mood}</span>
         `;
         container.appendChild(div);
       });
-    }
-
-    function getMoodColor(mood) {
-      if (mood === "Happy") return "bg-[#f5d9b0] text-[#8c6f3a]";
-      if (mood === "Calm") return "bg-[#b8d0c0] text-[#4a6b5a]";
-      if (mood === "Sad") return "bg-[#a8b8d0] text-[#4a5c7a]";
-      if (mood === "Angry") return "bg-[#e8b4a0] text-[#8c4a3a]";
-      return "bg-gray-100 text-gray-700";
     }
 
     function clearAllJournal() {
@@ -225,21 +244,16 @@
         renderEntries();
         showInsight();
         updateStreak();
-        alert("Journal cleared.");
+        showToast("Journal cleared.");
       }
     }
 
     function exportJournal() {
-      if (journal.length === 0) {
-        alert("No entries to export.");
-        return;
-      }
-
+      if (journal.length === 0) { showToast("No entries to export yet."); return; }
       let csv = "Date,Mood,Note\n";
       journal.forEach(entry => {
         csv += `"${entry.date}","${entry.mood}","${(entry.note || "").replace(/"/g, '""')}"\n`;
       });
-
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -247,40 +261,40 @@
       a.download = `Mood_Journal_${new Date().toISOString().split('T')[0]}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+      showToast("✅ Journal exported!");
+    }
 
-      alert("Journal exported successfully!");
+    function showToast(msg) {
+      let t = document.getElementById('_toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = '_toast';
+        t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2d4a3e;color:#fff;padding:0.7rem 1.4rem;border-radius:99px;font-weight:700;font-size:0.9rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg; t.style.opacity = '1';
+      clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity = '0'; }, 2500);
     }
 
     function showEmergency() {
       const html = `
-        <div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center">
-            <h2 class="text-2xl font-bold text-red-600 mb-4">You are not alone</h2>
-            <p class="text-gray-700 mb-8">Please reach out if you need immediate support.</p>
-            
-            <div class="space-y-4 text-left">
-              <a href="tel:23892222" class="block p-5 bg-red-50 hover:bg-red-100 rounded-2xl text-red-700 font-medium">
-                Samaritan Befrienders Hong Kong<br><span class="text-sm">2389 2222 (24 hours)</span>
-              </a>
-              <a href="tel:28960000" class="block p-5 bg-red-50 hover:bg-red-100 rounded-2xl text-red-700 font-medium">
-                Youthline<br><span class="text-sm">2896 0000</span>
-              </a>
-            </div>
-
-            <button onclick="this.closest('.fixed').remove()" 
-                    class="mt-8 w-full py-4 bg-gray-200 hover:bg-gray-300 rounded-2xl font-medium">
-              Close
-            </button>
+        <div class="onboard-overlay" onclick="this.remove()" style="z-index:300;">
+          <div class="onboard-sheet" onclick="event.stopPropagation()">
+            <h2 style="font-size:1.4rem;font-weight:900;color:#DC2626;text-align:center;margin-bottom:0.5rem;">You are not alone 💙</h2>
+            <p style="text-align:center;color:var(--text-soft);font-size:0.9rem;margin-bottom:1.5rem;">Please reach out for immediate support.</p>
+            <a href="tel:23892222" style="display:block;padding:1rem 1.25rem;background:rgba(239,68,68,0.08);border:1.5px solid rgba(239,68,68,0.2);border-radius:16px;margin-bottom:0.75rem;color:#DC2626;font-weight:600;text-decoration:none;">
+              Samaritan Befrienders Hong Kong<br><span style="font-size:0.8rem;font-weight:400;color:#B91C1C;">2389 2222 (24 hours)</span>
+            </a>
+            <a href="tel:28960000" style="display:block;padding:1rem 1.25rem;background:rgba(239,68,68,0.08);border:1.5px solid rgba(239,68,68,0.2);border-radius:16px;margin-bottom:0.75rem;color:#DC2626;font-weight:600;text-decoration:none;">
+              Youthline<br><span style="font-size:0.8rem;font-weight:400;color:#B91C1C;">2896 0000</span>
+            </a>
+            <button onclick="this.closest('.onboard-overlay').remove()" class="btn btn-surface btn-block btn-lg" style="margin-top:0.5rem;border-radius:16px;">Close</button>
           </div>
         </div>
       `;
-
-      const div = document.createElement('div');
-      div.innerHTML = html;
-      document.body.appendChild(div.firstElementChild);
+      document.body.insertAdjacentHTML('beforeend', html);
     }
 
-    // Initialize
     renderEntries();
     showInsight();
     renderChart();

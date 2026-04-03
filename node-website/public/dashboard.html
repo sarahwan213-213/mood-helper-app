@@ -1,121 +1,434 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mood Dashboard • Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/shared.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+    @media (min-width: 640px) {
+      .charts-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .entry-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+    .entry-row:last-child { border-bottom: none; }
+    .entry-datetime { font-size: 0.78rem; color: var(--text-muted); }
+    .entry-mood-name { font-weight: 700; font-size: 1rem; color: var(--text); }
+    .entry-note { font-size: 0.82rem; color: var(--text-soft); max-width: 200px; text-align: right; }
+
+    /* ── Weekly Summary Card ─────────────────────────────────── */
+    .weekly-summary-card {
+      border-radius: 20px;
+      padding: 1.5rem;
+      color: #fff;
+      margin-bottom: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .weekly-summary-card::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+    }
+    .weekly-summary-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px; left: -20px;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+    }
+    .wsc-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-bottom: 0.5rem;
+    }
+    .wsc-message {
+      font-size: 1.15rem;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+    .wsc-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      position: relative; z-index: 1;
+    }
+    .wsc-pill {
+      background: rgba(255,255,255,0.22);
+      border-radius: 20px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── 4-Card Stat Grid ────────────────────────────────────── */
+    .stat-grid-4 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.1rem 1rem;
+      text-align: center;
+    }
+    .stat-icon { font-size: 1.4rem; margin-bottom: 0.3rem; }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--primary), var(--primary-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+      font-weight: 600;
+    }
+
+    /* ── Academic Note ───────────────────────────────────────── */
+    .academic-note-banner {
+      background: var(--surface2, #f8f4f0);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
   </style>
 </head>
-<body class="bg-[#f8f4f0] min-h-screen">
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <a href="/mood.html" class="inline-flex items-center gap-2 text-[#6b8c7a] mb-8">← Back to Home</a>
-    <h1 class="text-4xl font-semibold text-[#5d4a3f]">Your Mood Dashboard</h1>
-    <p class="text-[#6b5c4f]">Full history with your notes</p>
+<body class="with-bottom-nav">
 
-    <!-- Recent Entries -->
-    <div class="mt-10">
-      <h2 class="text-2xl font-semibold mb-4">Recent Entries</h2>
-      <div id="entries-list" class="space-y-4"></div>
+  <!-- Header -->
+  <div class="page-header">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <a href="/mood.html" class="back-btn">Back</a>
+      <h1 style="font-size:1.2rem;font-weight:800;color:var(--text);">Mood Dashboard</h1>
     </div>
-
-    <!-- Charts -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-      <!-- Emotion Distribution (Pie Chart - real data) -->
-      <div class="bg-white rounded-3xl p-8">
-        <h3 class="font-semibold mb-6">Emotion Distribution</h3>
-        <canvas id="pieChart" height="320"></canvas>
-      </div>
-
-      <!-- Weekly Trend (Line Chart - NO NUMBERS, real moods) -->
-      <div class="bg-white rounded-3xl p-8">
-        <h3 class="font-semibold mb-6">Weekly Trend</h3>
-        <canvas id="lineChart" height="320"></canvas>
-      </div>
-    </div>
-
-    <button onclick="exportJournal()" class="mt-10 w-full py-5 bg-[#6b8c7a] text-white rounded-3xl text-lg font-medium">
-      📥 Export Full Journal as CSV
-    </button>
   </div>
+
+  <div class="page-content" style="padding:1.5rem 0 4rem;">
+    <div class="container">
+
+      <!-- ── SECTION 1: Weekly Mood Summary ─────────────────── -->
+      <div id="weekly-summary-wrap" class="fade-up"></div>
+
+      <!-- ── SECTION 2: Simple Mood Statistics ──────────────── -->
+      <div class="stat-grid-4 fade-up-1">
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-value" id="s-total">0</div>
+          <div class="stat-label">Total Check-ins</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value" id="s-streak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">😊</div>
+          <div class="stat-value" id="s-top" style="font-size:1.1rem;">—</div>
+          <div class="stat-label">Most Common</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-value" id="s-positive">0%</div>
+          <div class="stat-label">Positive Rate</div>
+        </div>
+      </div>
+
+      <div class="academic-note-banner fade-up-1">
+        📚 Data is stored locally in your browser using localStorage. No personal data is transmitted to any server.
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid fade-up-2" style="margin-bottom:1.5rem;">
+        <div class="card">
+          <h3 style="font-weight:700;font-size:1rem;margin-bottom:1rem;">Emotion Distribution</h3>
+          <canvas id="pieChart" height="260"></canvas>
+        </div>
+        <div class="card">
+          <h3 style="font-weight:700;font-size:1rem;margin-bottom:1rem;">Weekly Trend</h3>
+          <canvas id="lineChart" height="260"></canvas>
+        </div>
+      </div>
+
+      <!-- Recent Entries -->
+      <div class="card fade-up-3" style="padding:0;overflow:hidden;">
+        <div style="padding:1.25rem 1.25rem 0.75rem;border-bottom:1px solid var(--border);">
+          <h3 style="font-weight:700;font-size:1rem;">Recent Entries</h3>
+        </div>
+        <div id="entries-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item active"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/emotions.html" class="bottom-nav-item"><span class="nav-icon">📖</span><span>Learn</span></a>
+  </nav>
 
   <script>
     const journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
 
-    // Render recent entries (Date + Time + Mood + Note)
+    // ── Date helpers ──────────────────────────────────────────────
+    function parseDateFromEntry(entry) {
+      if (entry.datetime) {
+        const datePart = entry.datetime.split(',')[0].trim();
+        const parts = datePart.split('/');
+        if (parts.length === 3) {
+          const dd = parseInt(parts[0], 10);
+          const mm = parseInt(parts[1], 10) - 1;
+          const yyyy = parseInt(parts[2], 10);
+          if (!isNaN(dd) && !isNaN(mm) && !isNaN(yyyy)) {
+            const d = new Date(yyyy, mm, dd);
+            d.setHours(0, 0, 0, 0);
+            return d;
+          }
+        }
+      }
+      if (entry.date) {
+        const d = new Date(entry.date);
+        d.setHours(0, 0, 0, 0);
+        return isNaN(d) ? null : d;
+      }
+      return null;
+    }
+
+    function dateToKey(d) {
+      return d.toISOString().split('T')[0];
+    }
+
+    // ── Streak calculation ────────────────────────────────────────
+    function calcStreak() {
+      if (journal.length === 0) return 0;
+      const today = new Date(); today.setHours(0,0,0,0);
+      const daySet = new Set();
+      journal.forEach(e => {
+        const d = parseDateFromEntry(e);
+        if (d) daySet.add(dateToKey(d));
+      });
+      let streak = 0;
+      let cursor = new Date(today);
+      while (true) {
+        if (daySet.has(dateToKey(cursor))) {
+          streak++;
+          cursor.setDate(cursor.getDate() - 1);
+        } else {
+          if (streak === 0) {
+            cursor.setDate(cursor.getDate() - 1);
+            if (daySet.has(dateToKey(cursor))) {
+              streak++;
+              cursor.setDate(cursor.getDate() - 1);
+              continue;
+            }
+          }
+          break;
+        }
+      }
+      return streak;
+    }
+
+    // ── All-time stats ────────────────────────────────────────────
+    const emojiMap = { Angry: '😠', Sad: '😢', Happy: '😄', Calm: '😌' };
+    const counts = { Angry: 0, Sad: 0, Happy: 0, Calm: 0 };
+    journal.forEach(e => { if (counts[e.mood] !== undefined) counts[e.mood]++; });
+    const total = journal.length;
+
+    document.getElementById('s-total').textContent = total;
+    document.getElementById('s-streak').textContent = calcStreak();
+
+    if (total > 0) {
+      const topMood = Object.entries(counts).sort((a,b) => b[1]-a[1])[0][0];
+      document.getElementById('s-top').textContent = `${emojiMap[topMood]} ${topMood}`;
+      const positiveRate = Math.round(((counts.Happy + counts.Calm) / total) * 100);
+      document.getElementById('s-positive').textContent = `${positiveRate}%`;
+    }
+
+    // ── Section 1: Weekly Mood Summary ───────────────────────────
+    function buildWeeklySummary() {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(today.getDate() - 6);
+
+      const weekEntries = journal.filter(e => {
+        const d = parseDateFromEntry(e);
+        return d && d >= sevenDaysAgo && d <= today;
+      });
+
+      const wrap = document.getElementById('weekly-summary-wrap');
+
+      if (weekEntries.length === 0) {
+        wrap.innerHTML = `
+          <div class="weekly-summary-card" style="background:linear-gradient(135deg,#6b8c7a,#5a7a68)">
+            <div class="wsc-label">📅 This Week</div>
+            <div class="wsc-message">No check-ins this week yet 🌱<br>Start today to track your mood!</div>
+          </div>`;
+        return;
+      }
+
+      const wCounts = { Angry: 0, Sad: 0, Happy: 0, Calm: 0 };
+      weekEntries.forEach(e => { if (wCounts[e.mood] !== undefined) wCounts[e.mood]++; });
+      const wTotal = weekEntries.length;
+      const dominant = Object.entries(wCounts).sort((a,b) => b[1]-a[1])[0][0];
+      const dominantCount = wCounts[dominant];
+      const positiveCount = wCounts.Happy + wCounts.Calm;
+      const positiveRate = Math.round((positiveCount / wTotal) * 100);
+
+      const messages = {
+        Happy: 'Wonderful week! 🌟 You radiated positivity!',
+        Calm:  'A peaceful week 😌 You\'re finding your balance.',
+        Sad:   'It\'s okay to feel sad 💙 Every day is a new start.',
+        Angry: 'Tough week 💪 Your awareness is the first step.'
+      };
+      const gradients = {
+        Happy: 'linear-gradient(135deg,#F59E0B,#F97316)',
+        Calm:  'linear-gradient(135deg,#10B981,#06B6D4)',
+        Sad:   'linear-gradient(135deg,#6366F1,#A78BFA)',
+        Angry: 'linear-gradient(135deg,#FF4D4D,#FF7043)'
+      };
+
+      wrap.innerHTML = `
+        <div class="weekly-summary-card" style="background:${gradients[dominant]}">
+          <div class="wsc-label">📅 This Week</div>
+          <div class="wsc-message">${messages[dominant]}</div>
+          <div class="wsc-pills">
+            <span class="wsc-pill">${emojiMap[dominant]} Most felt: ${dominant} (${dominantCount} of 7 days)</span>
+            <span class="wsc-pill">✅ ${wTotal} check-in${wTotal !== 1 ? 's' : ''}</span>
+            <span class="wsc-pill">📈 Positive mood rate: ${positiveRate}%</span>
+          </div>
+        </div>`;
+    }
+    buildWeeklySummary();
+
+    // ── Recent Entries ────────────────────────────────────────────
     function renderEntries() {
       const container = document.getElementById('entries-list');
       if (journal.length === 0) {
-        container.innerHTML = '<p class="text-gray-500">No entries yet. Start checking your mood!</p>';
+        container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">No entries yet. Start checking your mood!</p>';
         return;
       }
+      const badgeClass = { Angry:'badge-angry', Sad:'badge-sad', Happy:'badge-happy', Calm:'badge-calm' };
       container.innerHTML = journal.slice(0, 8).map(entry => `
-        <div class="bg-white p-5 rounded-2xl flex justify-between items-center border border-[#e8d9c8]">
+        <div class="entry-row">
           <div>
-            <span class="text-xs text-gray-500">${entry.datetime}</span><br>
-            <span class="font-medium text-xl">${entry.mood}</span>
+            <div class="entry-datetime">${entry.datetime || entry.date || ''}</div>
+            <div class="entry-mood-name">${entry.mood}</div>
           </div>
-          <div class="text-right max-w-xs">
-            <p class="text-sm text-gray-600">${entry.note}</p>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;">
+            <span class="badge ${badgeClass[entry.mood]||'badge-primary'}">${entry.mood}</span>
+            <span class="entry-note">${entry.note || ''}</span>
           </div>
         </div>
       `).join('');
     }
     renderEntries();
 
-    // Emotion Distribution - Pie Chart (real saved data)
-    const counts = { Angry: 0, Sad: 0, Happy: 0, Calm: 0 };
-    journal.forEach(e => counts[e.mood] = (counts[e.mood] || 0) + 1);
-
+    // ── Pie Chart ─────────────────────────────────────────────────
     new Chart(document.getElementById('pieChart'), {
       type: 'pie',
       data: {
         labels: ['Angry', 'Sad', 'Happy', 'Calm'],
-        datasets: [{ 
-          data: Object.values(counts), 
-          backgroundColor: ['#d4b8a8', '#b8c8d4', '#f0d4b0', '#b0c8b8'] 
+        datasets: [{
+          data: [counts.Angry, counts.Sad, counts.Happy, counts.Calm],
+          backgroundColor: ['#FF4D4D', '#6366F1', '#F59E0B', '#10B981'],
+          borderWidth: 0
         }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom', labels: { padding: 12, font: { size: 12 } } } }
       }
     });
 
-    // Weekly Trend - Line Chart (NO NUMBERS, real moods)
+    // ── Line Chart ────────────────────────────────────────────────
     const last7Days = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      last7Days.push(d.toISOString().split('T')[0]);
+      last7Days.push(d);
     }
 
-    const chartData = last7Days.map(date => {
-      const entry = journal.find(e => e.date === date);   
+    const chartData = last7Days.map(day => {
+      const dayKey = dateToKey(day);
+      const entry = journal.find(e => {
+        const d = parseDateFromEntry(e);
+        return d && dateToKey(d) === dayKey;
+      });
       return entry ? entry.mood : null;
     });
 
     new Chart(document.getElementById('lineChart'), {
       type: 'line',
       data: {
-        labels: last7Days.map(d => d.slice(5)),   
+        labels: last7Days.map(d => `${d.getMonth()+1}/${d.getDate()}`),
         datasets: [{
           label: 'Mood',
           data: chartData.map(mood => {
-            if (mood === "Angry") return 1;
-            if (mood === "Sad") return 2;
-            if (mood === "Happy") return 3;
-            if (mood === "Calm") return 4;
+            if (mood === 'Angry') return 1;
+            if (mood === 'Sad')   return 2;
+            if (mood === 'Happy') return 3;
+            if (mood === 'Calm')  return 4;
             return null;
           }),
-          borderColor: '#6b8c7a',
+          borderColor: '#7C3AED',
           borderWidth: 3,
           tension: 0.4,
+          spanGaps: true,
           pointBackgroundColor: chartData.map(mood => {
-            if (mood === "Angry") return '#d4b8a8';
-            if (mood === "Sad") return '#b8c8d4';
-            if (mood === "Happy") return '#f0d4b0';
-            if (mood === "Calm") return '#b0c8b8';
-            return '#e8d9c8';
+            if (mood === 'Angry') return '#FF4D4D';
+            if (mood === 'Sad')   return '#6366F1';
+            if (mood === 'Happy') return '#F59E0B';
+            if (mood === 'Calm')  return '#10B981';
+            return '#9B8BC0';
           }),
           pointRadius: 7
         }]
@@ -124,42 +437,22 @@
         plugins: {
           legend: { display: false },
           tooltip: {
-            callbacks: {
-              label: (context) => {
-                const index = context.dataIndex;
-                const mood = chartData[index];
-                return mood ? mood : "No data";
-              }
-            }
+            callbacks: { label: ctx => chartData[ctx.dataIndex] || 'No data' }
           }
         },
         scales: {
           y: {
-            display: true,
+            min: 0.5, max: 4.5,
             ticks: {
-              callback: (value) => {
-                if (value === 1) return "Angry";
-                if (value === 2) return "Sad";
-                if (value === 3) return "Happy";
-                if (value === 4) return "Calm";
-                return "";
-              }
+              stepSize: 1,
+              callback: v => ({ 1:'Angry', 2:'Sad', 3:'Happy', 4:'Calm' }[v] || '')
             }
           },
-          x: { grid: { color: '#f0ede5' } }
+          x: { grid: { display: false } }
         }
       }
     });
 
-    function exportJournal() {
-      let csv = "Date & Time,Mood,Note\n";
-      journal.forEach(e => csv += `${e.datetime},${e.mood},"${e.note}"\n`);
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'mood_journal.csv';
-      link.click();
-    }
   </script>
 </body>
 </html>

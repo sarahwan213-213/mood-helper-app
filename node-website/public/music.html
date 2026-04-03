@@ -1,66 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relaxing Music</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Music • Mood Helper</title>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
 </head>
-<body class="bg-gradient-to-br from-pink-50 to-rose-50 min-h-screen">
+<body class="with-bottom-nav">
+  <div class="page-content" style="padding:2rem 0 4rem;">
+    <div class="container-sm">
+      <a href="/mood.html" class="back-btn fade-up" style="margin-bottom:1.5rem;display:inline-flex;">Back to Home</a>
 
-  <div class="max-w-md mx-auto pt-12 px-6">
-    <div class="text-center mb-10">
-      <h1 class="text-4xl font-bold text-pink-700">🎵 Relaxing Music</h1>
-      <p class="text-pink-600 mt-2">Choose music according to your mood</p>
-    </div>
-
-    <div class="bg-white rounded-3xl shadow-xl p-8 space-y-6">
-
-      <!-- Angry / Release -->
-      <div>
-        <h2 class="text-xl font-semibold text-red-600 mb-3">When feeling Angry</h2>
-        <button onclick="play('/music/Release01.mp3')" class="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium mb-2">Release01 - Let Go</button>
-        <button onclick="play('/music/Release02.mp3')" class="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium mb-2">Release02 - Deep Calm</button>
-        <button onclick="play('/music/Release03.mp3')" class="w-full py-5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium">Release03 - Peaceful Piano</button>
+      <div style="text-align:center;margin-bottom:2rem;" class="fade-up-1">
+        <div style="font-size:3rem;margin-bottom:0.75rem;">🎵</div>
+        <h1 style="font-size:1.8rem;font-weight:900;color:var(--text);margin-bottom:0.4rem;">Relaxing Music</h1>
+        <p style="color:var(--text-muted);font-size:0.95rem;">Choose music for your mood</p>
       </div>
 
-      <!-- Happy / Joy -->
-      <div>
-        <h2 class="text-xl font-semibold text-amber-600 mb-3">When feeling Happy</h2>
-        <button onclick="play('/music/Joy01.mp3')" class="w-full py-5 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-medium mb-2">Joy01 - Light Happy</button>
-        <button onclick="play('/music/Joy02.mp3')" class="w-full py-5 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-medium mb-2">Joy02 - Uplifting Piano</button>
-        <button onclick="play('/music/Joy03.mp3')" class="w-full py-5 bg-amber-600 hover:bg-amber-700 text-white rounded-2xl font-medium">Joy03 - Gentle Joy</button>
+      <div style="display:flex;flex-direction:column;gap:1rem;" class="fade-up-2">
+        <a href="/music-angry.html" class="card" style="display:flex;align-items:center;gap:1rem;padding:1.25rem;border-color:rgba(255,77,77,0.2);background:linear-gradient(135deg,rgba(255,77,77,0.06),rgba(255,112,67,0.06));text-decoration:none;">
+          <span style="font-size:2rem;">😠</span>
+          <div>
+            <div style="font-weight:700;color:var(--angry-text);">Angry</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">9 release tracks to channel anger</div>
+          </div>
+          <span style="margin-left:auto;color:var(--text-muted);">→</span>
+        </a>
+        <a href="/music-sad.html" class="card" style="display:flex;align-items:center;gap:1rem;padding:1.25rem;border-color:rgba(99,102,241,0.2);background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(167,139,250,0.06));text-decoration:none;">
+          <span style="font-size:2rem;">😢</span>
+          <div>
+            <div style="font-weight:700;color:var(--sad-text);">Sad</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">9 comfort tracks to soothe</div>
+          </div>
+          <span style="margin-left:auto;color:var(--text-muted);">→</span>
+        </a>
+        <a href="/music-happy.html" class="card" style="display:flex;align-items:center;gap:1rem;padding:1.25rem;border-color:rgba(245,158,11,0.2);background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(249,115,22,0.06));text-decoration:none;">
+          <span style="font-size:2rem;">😄</span>
+          <div>
+            <div style="font-weight:700;color:var(--happy-text);">Happy</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">9 joy tracks to boost your mood</div>
+          </div>
+          <span style="margin-left:auto;color:var(--text-muted);">→</span>
+        </a>
+        <a href="/music-calm.html" class="card" style="display:flex;align-items:center;gap:1rem;padding:1.25rem;border-color:rgba(16,185,129,0.2);background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(6,182,212,0.06));text-decoration:none;">
+          <span style="font-size:2rem;">😌</span>
+          <div>
+            <div style="font-weight:700;color:var(--calm-text);">Calm</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);">9 serenity tracks to relax</div>
+          </div>
+          <span style="margin-left:auto;color:var(--text-muted);">→</span>
+        </a>
       </div>
-
-      <!-- Sad / Comfort -->
-      <div>
-        <h2 class="text-xl font-semibold text-slate-600 mb-3">When feeling Sad</h2>
-        <button onclick="play('/music/Comfort01.mp3')" class="w-full py-5 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-medium mb-2">Comfort01 - Gentle Comfort</button>
-        <button onclick="play('/music/Comfort02.mp3')" class="w-full py-5 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-medium mb-2">Comfort02 - Emotional Piano</button>
-        <button onclick="play('/music/Comfort03.mp3')" class="w-full py-5 bg-slate-600 hover:bg-slate-700 text-white rounded-2xl font-medium">Comfort03 - Sad Piano</button>
-      </div>
-
-      <!-- Calm / Serenity -->
-      <div>
-        <h2 class="text-xl font-semibold text-emerald-600 mb-3">When feeling Calm</h2>
-        <button onclick="play('/music/Serenity01.mp3')" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium mb-2">Serenity01 - Peaceful</button>
-        <button onclick="play('/music/Serenity02.mp3')" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium mb-2">Serenity02 - Deep Calm</button>
-        <button onclick="play('/music/Serenity03.mp3')" class="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-medium">Serenity03 - Tranquility</button>
-      </div>
-
-    </div>
-
-    <div class="text-center mt-10">
-      <a href="/mood.html" class="text-pink-600 hover:underline">← Back to Mood Detection</a>
     </div>
   </div>
+
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
 
   <script>
     function play(src) {
       const audio = new Audio(src);
       audio.play().catch(() => {
-        alert("Cannot play this file. Please check the file name and location.");
+        showToast("⚠️ Could not play file. Check it exists in /music/");
       });
+    }
+    function showToast(msg) {
+      let t = document.getElementById('_toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = '_toast';
+        t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2d4a3e;color:#fff;padding:0.7rem 1.4rem;border-radius:99px;font-weight:700;font-size:0.9rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg; t.style.opacity = '1';
+      clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity = '0'; }, 2500);
     }
   </script>
 </body>

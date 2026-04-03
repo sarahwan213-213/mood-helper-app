@@ -1,98 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Meditation for Happy • Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+    .mood-header { background: linear-gradient(135deg,#F59E0B,#F97316); padding:1.5rem 1.25rem 1.25rem; }
+    .track-play-btn { background: linear-gradient(135deg,#F59E0B,#F97316); color:#fff; }
+    .track-subtitle { color: #B45309; }
+    .progress-fill   { background: linear-gradient(90deg,#F59E0B,#F97316); }
+    .pause-btn { background: linear-gradient(135deg,#F59E0B,#F97316); color:#fff; border:none; flex:1; padding:0.85rem; border-radius:14px; font-weight:700; cursor:pointer; font-size:1rem; }
+    .stop-btn  { background:rgba(245,158,11,0.1); color:#B45309; border:1.5px solid rgba(245,158,11,0.25); flex:1; padding:0.85rem; border-radius:14px; font-weight:700; cursor:pointer; font-size:1rem; }
   </style>
 </head>
-<body class="bg-[#f8f4f0] min-h-screen">
-  <div class="max-w-md mx-auto px-6 py-12">
-    <a href="/happy.html" class="inline-flex items-center gap-2 text-[#8c6f4a] mb-8">← Back to Happy</a>
-    <h1 class="text-4xl font-semibold text-[#8c6f4a] mb-2">Meditation for Happy</h1>
-    <p class="text-[#6b5c4f]">Only one can play at a time</p>
+<body class="with-bottom-nav">
 
-    <div class="mt-10 space-y-6">
+  <div class="mood-header">
+    <a href="/happy.html" class="back-btn" style="color:rgba(255,255,255,0.85);margin-bottom:0.75rem;display:inline-flex;">Back to Happy</a>
+    <h1 style="font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:0.2rem;">🧘 Meditation for Happy</h1>
+    <p style="color:rgba(255,255,255,0.85);font-size:0.88rem;">Only one track can play at a time</p>
+  </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Happy 1</h3>
-          <p class="text-sm text-[#8c6f4a]">Gratitude Meditation • 8 minutes</p>
-          <p class="text-xs text-gray-500">Gratitude practice. Helps you deepen and extend your happy feeling.</p>
+  <div class="page-content" style="padding:1.5rem 0 4rem;">
+    <div class="container-sm">
+
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+        <div class="track-card fade-up" id="card-0">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Happy01.mp3', 'Happy 1', 0)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Happy 1</div>
+            <div class="track-subtitle">Gratitude Meditation • 8 minutes</div>
+            <div class="track-desc">Gratitude practice. Helps you deepen and extend your happy feeling.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Happy01.mp3', 'Happy 1')" class="play-btn px-8 py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Happy 2</h3>
-          <p class="text-sm text-[#8c6f4a]">Joyful Loving Kindness • 10 minutes</p>
-          <p class="text-xs text-gray-500">Loving-kindness meditation. Helps you share and grow your happiness.</p>
+        <div class="track-card fade-up-1" id="card-1">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Happy02.mp3', 'Happy 2', 1)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Happy 2</div>
+            <div class="track-subtitle">Joyful Loving Kindness • 10 minutes</div>
+            <div class="track-desc">Loving-kindness meditation. Helps you share and grow your happiness.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Happy02.mp3', 'Happy 2')" class="play-btn px-8 py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Happy 3</h3>
-          <p class="text-sm text-[#8c6f4a]">Celebrate the Present • 12 minutes</p>
-          <p class="text-xs text-gray-500">Mindfulness of joy. Helps you fully enjoy and sustain happy moments.</p>
+        <div class="track-card fade-up-2" id="card-2">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Happy03.mp3', 'Happy 3', 2)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Happy 3</div>
+            <div class="track-subtitle">Celebrate the Present • 12 minutes</div>
+            <div class="track-desc">Mindfulness of joy. Helps you fully enjoy and sustain happy moments.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Happy03.mp3', 'Happy 3')" class="play-btn px-8 py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Happy 4</h3>
-          <p class="text-sm text-[#8c6f4a]">Gratitude Expansion • 9 minutes</p>
-          <p class="text-xs text-gray-500">Gratitude practice. Helps you cherish and extend your happy feeling.</p>
+        <div class="track-card fade-up-3" id="card-3">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Happy04.mp3', 'Happy 4', 3)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Happy 4</div>
+            <div class="track-subtitle">Gratitude Expansion • 9 minutes</div>
+            <div class="track-desc">Gratitude practice. Helps you cherish and extend your happy feeling.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Happy04.mp3', 'Happy 4')" class="play-btn px-8 py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Happy 5</h3>
-          <p class="text-sm text-[#8c6f4a]">Joyful Loving Kindness • 11 minutes</p>
-          <p class="text-xs text-gray-500">Loving-kindness meditation. Helps you share joy with yourself and others.</p>
+        <div class="track-card fade-up-4" id="card-4">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Happy05.mp3', 'Happy 5', 4)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Happy 5</div>
+            <div class="track-subtitle">Joyful Loving Kindness • 11 minutes</div>
+            <div class="track-desc">Loving-kindness meditation. Helps you share joy with yourself and others.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Happy05.mp3', 'Happy 5')" class="play-btn px-8 py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Happy 6</h3>
-          <p class="text-sm text-[#8c6f4a]">Celebrate the Present • 10 minutes</p>
-          <p class="text-xs text-gray-500">Mindfulness of joy. Helps you fully enjoy and sustain happy moments.</p>
+        <div class="track-card fade-up-5" id="card-5">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Happy06.mp3', 'Happy 6', 5)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Happy 6</div>
+            <div class="track-subtitle">Celebrate the Present • 10 minutes</div>
+            <div class="track-desc">Mindfulness of joy. Helps you fully enjoy and sustain happy moments.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Happy06.mp3', 'Happy 6')" class="play-btn px-8 py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl font-medium">Start</button>
+
       </div>
 
-    </div>
+      <div id="player-container" class="player-bar hidden" style="margin-top:1.5rem;">
+        <div id="now-playing" style="font-weight:700;color:var(--text);margin-bottom:0.5rem;font-size:0.95rem;"></div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;">
+          <span id="current-time">0:00</span>
+          <span id="total-time">0:00</span>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button onclick="togglePause()" id="pause-btn" class="pause-btn">⏸ Pause</button>
+          <button onclick="stopMusic()" class="stop-btn">⏹ Stop</button>
+        </div>
+      </div>
 
-    <div id="player-container" class="hidden mt-8 bg-white rounded-3xl p-6 shadow">
-      <div id="now-playing" class="text-center text-[#8c6f4a] font-medium mb-4"></div>
-      <div class="flex justify-between text-sm mb-2 text-gray-600">
-        <span id="current-time">0:00</span>
-        <span id="total-time">0:00</span>
-      </div>
-      <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
-        <div id="progress" class="h-2 bg-[#f0d4b0] w-0 transition-all"></div>
-      </div>
-      <div class="flex gap-4">
-        <button onclick="togglePause()" id="pause-btn" class="flex-1 py-4 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl font-medium">Pause</button>
-        <button onclick="stopMusic()" class="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium">Stop</button>
-      </div>
     </div>
   </div>
 
   <audio id="player" class="hidden"></audio>
 
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
+
   <script>
     let currentBtn = null;
+    let currentCardIndex = null;
     let isPaused = false;
     const player = document.getElementById('player');
     const playerContainer = document.getElementById('player-container');
@@ -108,26 +133,23 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    function playMusic(btn, src, title) {
+    function playMusic(btn, src, title, cardIndex) {
       if (currentBtn && currentBtn !== btn) {
-        currentBtn.textContent = "Start";
-        currentBtn.classList.remove('bg-red-600');
+        currentBtn.textContent = "▶";
+        if (currentCardIndex !== null) document.getElementById(`card-${currentCardIndex}`).classList.remove('playing');
       }
       player.pause();
       player.src = src;
       player.currentTime = 0;
       player.play();
-
-      btn.textContent = "Playing";
-      btn.classList.add('bg-red-600');
-
+      btn.textContent = "⏸";
+      document.getElementById(`card-${cardIndex}`).classList.add('playing');
       playerContainer.classList.remove('hidden');
       nowPlaying.innerHTML = `🎧 ${title}`;
-
       currentBtn = btn;
+      currentCardIndex = cardIndex;
       isPaused = false;
-      pauseBtn.textContent = "Pause";
-
+      pauseBtn.textContent = "⏸ Pause";
       player.ontimeupdate = () => {
         if (player.duration) {
           const progress = (player.currentTime / player.duration) * 100;
@@ -143,11 +165,13 @@
       if (!player.src) return;
       if (isPaused) {
         player.play();
-        pauseBtn.textContent = "Pause";
+        pauseBtn.textContent = "⏸ Pause";
+        if (currentBtn) currentBtn.textContent = "⏸";
         isPaused = false;
       } else {
         player.pause();
-        pauseBtn.textContent = "Resume";
+        pauseBtn.textContent = "▶ Resume";
+        if (currentBtn) currentBtn.textContent = "▶";
         isPaused = true;
       }
     }
@@ -159,12 +183,11 @@
     }
 
     function resetPlayer() {
-      if (currentBtn) {
-        currentBtn.textContent = "Start";
-        currentBtn.classList.remove('bg-red-600');
-      }
+      if (currentBtn) currentBtn.textContent = "▶";
+      if (currentCardIndex !== null) document.getElementById(`card-${currentCardIndex}`).classList.remove('playing');
       playerContainer.classList.add('hidden');
       currentBtn = null;
+      currentCardIndex = null;
       isPaused = false;
     }
 

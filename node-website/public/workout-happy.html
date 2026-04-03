@@ -1,44 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Workout for Happy • Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
+  <style>
+    .mood-header { background: linear-gradient(135deg,#F59E0B,#F97316); padding:1.5rem 1.25rem 1.25rem; }
+    .video-card { background:var(--surface); border-radius:20px; padding:1.4rem; border:1.5px solid var(--border); box-shadow:var(--shadow-sm); margin-bottom:1rem; }
+    .video-card h3 { font-weight:800; font-size:1rem; color:var(--text); margin-bottom:0.25rem; }
+    .video-card p  { font-size:0.82rem; color:var(--text-muted); margin-bottom:0.85rem; }
+    iframe { border-radius:14px; display:block; width:100%; }
+  </style>
 </head>
-<body class="bg-[#f8f4f0] min-h-screen">
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <a href="/happy.html" class="inline-flex items-center gap-2 text-[#8c6f4a] mb-8">← Back to Happy</a>
-    <h1 class="text-4xl font-semibold text-[#8c6f4a] mb-2">Workout for Happy</h1>
-    <p class="text-[#6b5c4f] mb-12">Fun, uplifting movement to keep the good vibes going</p>
+<body class="with-bottom-nav">
 
-    <div class="space-y-12">
-      <div class="bg-white rounded-3xl shadow-xl p-8">
-        <h3 class="font-semibold text-xl mb-2">1. 15 Min Happy Dance Workout</h3>
-        <p class="text-[#6b5c4f] mb-6">Smile and burn calories at the same time!</p>
-        <iframe width="100%" height="420" src="https://www.youtube.com/embed/Cw-Wt4xKD2s" frameborder="0" allowfullscreen></iframe>
+  <div class="mood-header">
+    <a href="/happy.html" class="back-btn" style="color:rgba(255,255,255,0.85);margin-bottom:0.75rem;display:inline-flex;">Back to Happy</a>
+    <h1 style="font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:0.2rem;">🏃 Workout for Happy</h1>
+    <p style="color:rgba(255,255,255,0.8);font-size:0.88rem;">Fun, uplifting movement to keep the good vibes going</p>
+  </div>
+
+  <div class="page-content" style="padding:1.5rem 0 4rem;">
+    <div class="container-sm">
+
+      <div class="video-card fade-up">
+        <h3>1. 15 Min Happy Dance Workout</h3>
+        <p>Smile and burn calories at the same time!</p>
+        <iframe height="220" src="https://www.youtube.com/embed/Cw-Wt4xKD2s" frameborder="0" allowfullscreen></iframe>
       </div>
-      <div class="bg-white rounded-3xl shadow-xl p-8">
-        <h3 class="font-semibold text-xl mb-2">2. 20 Min Joyful Fun Dance Workout</h3>
-        <p class="text-[#6b5c4f] mb-6">Pure joy – you’ll forget you’re even exercising.</p>
-        <iframe width="100%" height="420" src="https://www.youtube.com/embed/wmSJwv48N1A" frameborder="0" allowfullscreen></iframe>
+
+      <div class="video-card fade-up-1">
+        <h3>2. 20 Min Joyful Fun Dance Workout</h3>
+        <p>Pure joy — you'll forget you're even exercising.</p>
+        <iframe height="220" src="https://www.youtube.com/embed/wmSJwv48N1A" frameborder="0" allowfullscreen></iframe>
       </div>
-      <div class="bg-white rounded-3xl shadow-xl p-8">
-        <h3 class="font-semibold text-xl mb-2">3. 20 Min Feel Good Cardio Dance</h3>
-        <p class="text-[#6b5c4f] mb-6">Dance your worries away and boost your mood.</p>
-        <iframe width="100%" height="420" src="https://www.youtube.com/embed/uyWYzKgUgLI" frameborder="0" allowfullscreen></iframe>
+
+      <div class="video-card fade-up-2">
+        <h3>3. 20 Min Feel Good Cardio Dance</h3>
+        <p>Dance your worries away and boost your mood.</p>
+        <iframe height="220" src="https://www.youtube.com/embed/uyWYzKgUgLI" frameborder="0" allowfullscreen></iframe>
       </div>
-      <div class="bg-white rounded-3xl shadow-xl p-8">
-        <h3 class="font-semibold text-xl mb-2">4. 10 Min Sweaty Endorphins Happy Dance</h3>
-        <p class="text-[#6b5c4f] mb-6">High energy dance to feel super happy.</p>
-        <iframe width="100%" height="420" src="https://www.youtube.com/embed/LcxzO9FSLfQ" frameborder="0" allowfullscreen></iframe>
+
+      <div class="video-card fade-up-3">
+        <h3>4. 10 Min Sweaty Endorphins Happy Dance</h3>
+        <p>High energy dance to feel super happy.</p>
+        <iframe height="220" src="https://www.youtube.com/embed/LcxzO9FSLfQ" frameborder="0" allowfullscreen></iframe>
       </div>
-      <div class="bg-white rounded-3xl shadow-xl p-8">
-        <h3 class="font-semibold text-xl mb-2">5. 10 Min Feel Happy Dance Workout</h3>
-        <p class="text-[#6b5c4f] mb-6">Cardio + stretch to keep the happiness flowing.</p>
-        <iframe width="100%" height="420" src="https://www.youtube.com/embed/83iwPjFVjDY" frameborder="0" allowfullscreen></iframe>
+
+      <div class="video-card fade-up-4">
+        <h3>5. 10 Min Feel Happy Dance Workout</h3>
+        <p>Cardio + stretch to keep the happiness flowing.</p>
+        <iframe height="220" src="https://www.youtube.com/embed/83iwPjFVjDY" frameborder="0" allowfullscreen></iframe>
       </div>
+
     </div>
   </div>
+
+  <nav class="bottom-nav">
+    <a href="/mood.html"      class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html"   class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html"    class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
 </body>
 </html>

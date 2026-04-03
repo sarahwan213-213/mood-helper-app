@@ -1,251 +1,1312 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <link rel="manifest" href="/manifest.json">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mood Helper • Gentle Support for Your Emotions</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Mood Helper • Your Daily Mood Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    /* ── Theme: data-theme on <html> drives shared.css variables;
+       "darkMode" in localStorage is the user-facing key. ── */
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('darkMode', t === 'dark' ? 'true' : 'false');
+      /* also toggle .dark on <body> for any Tailwind dark: classes */
+      document.body && (t === 'dark'
+        ? document.body.classList.add('dark')
+        : document.body.classList.remove('dark'));
+    }
+    function toggleTheme() {
+      applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+    /* Run before paint to avoid flash */
+    (function () {
+      var stored = localStorage.getItem('darkMode');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var isDark = stored !== null ? stored === 'true' : prefersDark;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    })();
+  </script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
-    .hero-bg { background: linear-gradient(135deg, #f8f4f0 0%, #e8f0e8 50%, #f0f4eb 100%); }
-    .emotion-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .emotion-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.15); }
+    /* ── Base font ───────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, button, input, textarea {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Page fade-in ────────────────────────────────────────── */
+    @keyframes pageLoad { from { opacity: 0; } to { opacity: 1; } }
+    body { animation: pageLoad 0.5s ease both; }
+
+    /* ── Page-exit ───────────────────────────────────────────── */
+    @keyframes pageExit { from { opacity: 1; } to { opacity: 0; } }
+    body.exiting { animation: pageExit 0.3s ease forwards; pointer-events: none; }
+
+    /* ── Stagger-reveal (IntersectionObserver) ───────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-group .reveal:nth-child(1) { transition-delay: 0.05s; }
+    .reveal-group .reveal:nth-child(2) { transition-delay: 0.15s; }
+    .reveal-group .reveal:nth-child(3) { transition-delay: 0.25s; }
+    .reveal-group .reveal:nth-child(4) { transition-delay: 0.35s; }
+
+    /* ── Button lift + spring-back ───────────────────────────── */
+    .btn {
+      min-height: 48px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      transition: transform 0.18s cubic-bezier(0.22,1,0.36,1),
+                  box-shadow 0.18s cubic-bezier(0.22,1,0.36,1) !important;
+    }
+    .btn:hover  { transform: translateY(-3px) !important; box-shadow: 0 8px 20px rgba(107,140,122,0.28) !important; }
+    .btn:active { transform: translateY(0) scale(0.96) !important; box-shadow: 0 2px 6px rgba(107,140,122,0.14) !important; transition-duration: 0.08s !important; }
+
+    /* ── Emotion result pop-in ───────────────────────────────── */
+    @keyframes popInResult {
+      0%  { opacity: 0; transform: scale(0.8); }
+      65% { transform: scale(1.06); }
+      100%{ opacity: 1; transform: scale(1); }
+    }
+    .pop-result { animation: popInResult 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+    /* ── Card hover ──────────────────────────────────────────── */
+    .emotion-card {
+      transition: transform 0.25s cubic-bezier(0.22,1,0.36,1),
+                  box-shadow 0.25s cubic-bezier(0.22,1,0.36,1) !important;
+    }
+    .emotion-card:hover  { transform: translateY(-6px) !important; box-shadow: 0 12px 28px rgba(107,140,122,0.18) !important; }
+    .emotion-card:active { transform: translateY(-2px) scale(0.98) !important; transition-duration: 0.08s !important; }
+    .tool-card {
+      transition: transform 0.2s cubic-bezier(0.22,1,0.36,1),
+                  box-shadow 0.2s cubic-bezier(0.22,1,0.36,1) !important;
+    }
+    .tool-card:hover  { transform: translateY(-4px) !important; box-shadow: 0 10px 24px rgba(107,140,122,0.16) !important; }
+    .tool-card:active { transform: translateY(0) scale(0.97) !important; transition-duration: 0.08s !important; }
+
+    /* ── Floating emoji ──────────────────────────────────────── */
+    @keyframes floatEmoji {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+    .onboard-emoji {
+      font-size: 3.2rem; display: block; text-align: center;
+      margin-bottom: 1rem; animation: floatEmoji 2.5s ease-in-out infinite;
+    }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .hero-section {
+      position: relative; overflow: hidden;
+      /* Sage-green → warm-peach gradient */
+      background: linear-gradient(145deg, #e8f0eb 0%, #f8f4f0 55%, #fce8df 100%);
+      padding: 112px 1.25rem 72px; text-align: center;
+      border-bottom: 1px solid rgba(107,140,122,0.15);
+    }
+    [data-theme="dark"] .hero-section {
+      background: linear-gradient(145deg, #1a2e25 0%, #1e1538 55%, #2a1a14 100%);
+    }
+    .hero-eyebrow {
+      display: inline-block; font-size: 0.82rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #6b8c7a; background: rgba(107,140,122,0.1);
+      border: 1px solid rgba(107,140,122,0.25);
+      padding: 0.3rem 0.9rem; border-radius: 99px; margin-bottom: 1rem;
+    }
+    .hero-title {
+      font-size: clamp(2rem, 6vw, 3.2rem); font-weight: 900;
+      line-height: 1.12; letter-spacing: -0.03em;
+      color: #2d4a3e; margin-bottom: 0.75rem;
+    }
+    [data-theme="dark"] .hero-title { color: #c8e6d0; }
+    .hero-title .accent { color: #e8846a; }
+    .hero-tagline {
+      font-size: 1.05rem; color: #5a7268; max-width: 460px;
+      margin: 0 auto 2rem; line-height: 1.65; font-weight: 600;
+    }
+    [data-theme="dark"] .hero-tagline { color: #9bbfad; }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 2rem; border-radius: 99px; border: none;
+      background: linear-gradient(135deg, #6b8c7a, #5a7a68);
+      color: #fff; font-size: 1rem; font-weight: 800;
+      box-shadow: 0 6px 20px rgba(107,140,122,0.4); cursor: pointer;
+      min-height: 52px;
+    }
+
+    /* ── Privacy banner ──────────────────────────────────────── */
+    #privacyBanner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; padding: 0.75rem 1.25rem;
+      background: #e8f5ee; border-bottom: 1px solid #b2ddc4;
+      font-size: 0.82rem; font-weight: 600; color: #1a5c38;
+    }
+    [data-theme="dark"] #privacyBanner {
+      background: #0d2b1a; border-color: #1a5c38; color: #6bcf90;
+    }
+    #privacyBanner.hidden { display: none; }
+    .privacy-banner-text { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
+    .privacy-dismiss {
+      flex-shrink: 0; background: none; border: none; cursor: pointer;
+      font-size: 1.1rem; line-height: 1; color: inherit; opacity: 0.6; padding: 0.2rem;
+    }
+    .privacy-dismiss:hover { opacity: 1; }
+
+    /* ── Emotion grid ────────────────────────────────────────── */
+    .emotion-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (min-width: 640px) { .emotion-grid { grid-template-columns: repeat(4, 1fr); } }
+    .emotion-card {
+      display: flex; flex-direction: column; align-items: center; gap: 0.65rem;
+      padding: 1.5rem 1rem; text-decoration: none; border-radius: 24px;
+      border: 1.5px solid rgba(107,140,122,0.15);
+      background: #fff; box-shadow: 0 2px 12px rgba(107,140,122,0.08);
+      text-align: center;
+    }
+    [data-theme="dark"] .emotion-card { background: #1e1538; border-color: rgba(167,139,250,0.15); }
+    .emotion-emoji { font-size: 2.6rem; }
+
+    /* Image wrapper — gives the transparent PNG a soft coloured backdrop */
+    .emotion-card-img-wrap {
+      width: 80px; height: 80px; border-radius: 22px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .emotion-card-img {
+      width: 64px; height: 64px; object-fit: contain;
+      display: block; position: relative;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.12));
+    }
+
+    /* Per-emotion wrapper colours (muted, pastel) */
+    .emotion-angry  .emotion-card-img-wrap { background: linear-gradient(135deg, #fde8e8, #fbc9c9); }
+    .emotion-sad    .emotion-card-img-wrap { background: linear-gradient(135deg, #dde8fb, #c2d5f8); }
+    .emotion-happy  .emotion-card-img-wrap { background: linear-gradient(135deg, #fef3d0, #fde8a0); }
+    .emotion-calm   .emotion-card-img-wrap { background: linear-gradient(135deg, #d4f0e8, #aee0d0); }
+    [data-theme="dark"] .emotion-angry  .emotion-card-img-wrap { background: linear-gradient(135deg, #3a1a1a, #4d2020); }
+    [data-theme="dark"] .emotion-sad    .emotion-card-img-wrap { background: linear-gradient(135deg, #1a2240, #1e2a52); }
+    [data-theme="dark"] .emotion-happy  .emotion-card-img-wrap { background: linear-gradient(135deg, #3a2e10, #4d3e14); }
+    [data-theme="dark"] .emotion-calm   .emotion-card-img-wrap { background: linear-gradient(135deg, #0e2e22, #123d2d); }
+
+    .emotion-name  { font-weight: 800; font-size: 1rem; }
+    .emotion-sub   { font-size: 0.75rem; color: #9b8bc0; }
+    .emotion-angry .emotion-name { color: #b91c1c; }
+    .emotion-sad   .emotion-name { color: #4338ca; }
+    .emotion-happy .emotion-name { color: #b45309; }
+    .emotion-calm  .emotion-name { color: #047857; }
+    .emotion-angry { border-color: rgba(255,77,77,0.2); }
+    .emotion-sad   { border-color: rgba(99,102,241,0.2); }
+    .emotion-happy { border-color: rgba(245,158,11,0.2); }
+    .emotion-calm  { border-color: rgba(16,185,129,0.2); }
+
+    /* ── Camera card ─────────────────────────────────────────── */
+    .video-wrapper {
+      position: relative; background: #f0ede5;
+      border-radius: 20px; overflow: hidden;
+      border: 1.5px solid rgba(107,140,122,0.2);
+      margin-bottom: 1rem; aspect-ratio: 4/3;
+    }
+    [data-theme="dark"] .video-wrapper { background: #251c45; border-color: rgba(167,139,250,0.18); }
+    #video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    #detecting-overlay {
+      position: absolute; inset: 0; background: rgba(13,8,32,0.62);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1rem; color: #fff;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid rgba(255,255,255,0.28); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Override grid ───────────────────────────────────────── */
+    .override-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.5rem; margin-bottom: 1rem; }
+    .override-grid .btn { min-height: 44px; font-size: 0.8rem; padding: 0.5rem 0.2rem; border-radius: 12px; }
+
+    /* ── Confidence result card ──────────────────────────────── */
+    .result-card {
+      background: var(--surface2, #f8f4f0);
+      border: 1.5px solid rgba(107,140,122,0.18);
+      border-radius: 20px; padding: 1.25rem 1.25rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+    [data-theme="dark"] .result-card {
+      background: #251c45; border-color: rgba(167,139,250,0.2);
+    }
+
+    /* Main result row */
+    .result-main {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; margin-bottom: 1rem;
+    }
+    .result-emotion {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 1.6rem; font-weight: 900; color: #2d4a3e;
+    }
+    [data-theme="dark"] .result-emotion { color: #c8e6d0; }
+    .result-badge {
+      font-size: 0.78rem; font-weight: 800; padding: 0.3rem 0.75rem;
+      border-radius: 99px; background: #d1fae5; color: #065f46;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    [data-theme="dark"] .result-badge { background: #064e3b; color: #6ee7b7; }
+
+    /* Main confidence bar */
+    .conf-bar-wrap {
+      height: 10px; background: rgba(107,140,122,0.15);
+      border-radius: 99px; overflow: hidden; margin-bottom: 1.1rem;
+    }
+    [data-theme="dark"] .conf-bar-wrap { background: rgba(167,139,250,0.12); }
+    .conf-bar-fill {
+      height: 100%; border-radius: 99px; width: 0%;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Breakdown bars */
+    .breakdown-title {
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #9b8bc0; margin-bottom: 0.65rem;
+    }
+    .breakdown-row {
+      display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.55rem;
+    }
+    .breakdown-emoji { font-size: 1rem; width: 1.4rem; text-align: center; flex-shrink: 0; }
+    .breakdown-label { font-size: 0.78rem; font-weight: 700; width: 2.8rem; color: #5a7268; flex-shrink: 0; }
+    [data-theme="dark"] .breakdown-label { color: #9bbfad; }
+    .breakdown-track {
+      flex: 1; height: 8px; background: rgba(107,140,122,0.12);
+      border-radius: 99px; overflow: hidden;
+    }
+    [data-theme="dark"] .breakdown-track { background: rgba(167,139,250,0.1); }
+    .breakdown-fill {
+      height: 100%; border-radius: 99px; width: 0%;
+      transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .breakdown-pct {
+      font-size: 0.75rem; font-weight: 800; width: 2.5rem;
+      text-align: right; color: #9b8bc0; flex-shrink: 0;
+    }
+
+    /* Stagger delays for breakdown rows */
+    .breakdown-row:nth-child(1) .breakdown-fill { transition-delay: 0.05s; }
+    .breakdown-row:nth-child(2) .breakdown-fill { transition-delay: 0.15s; }
+    .breakdown-row:nth-child(3) .breakdown-fill { transition-delay: 0.25s; }
+    .breakdown-row:nth-child(4) .breakdown-fill { transition-delay: 0.35s; }
+
+    /* Emotion colour palette for bars */
+    .bar-angry  { background: linear-gradient(90deg, #ff4d4d, #ff7043); }
+    .bar-sad    { background: linear-gradient(90deg, #6366f1, #a78bfa); }
+    .bar-happy  { background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .bar-calm   { background: linear-gradient(90deg, #10b981, #06b6d4); }
+
+    /* ── Streak & Motivation section ────────────────────────── */
+    @keyframes firePulse {
+      0%, 100% { transform: scale(1); }
+      45%       { transform: scale(1.3) rotate(-8deg); }
+      55%       { transform: scale(1.2) rotate(6deg); }
+    }
+    .streak-fire {
+      display: inline-block;
+      animation: firePulse 1.6s ease-in-out infinite;
+      transform-origin: bottom center;
+      font-size: 2.4rem;
+    }
+
+    .streak-card {
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fef3c7 100%);
+      border: 1.5px solid rgba(251,146,60,0.25);
+      border-radius: 24px; padding: 1.75rem 1.5rem 1.5rem;
+      text-align: center; margin-bottom: 1rem;
+      box-shadow: 0 4px 20px rgba(251,146,60,0.12);
+    }
+    [data-theme="dark"] .streak-card {
+      background: linear-gradient(135deg, #1c1008 0%, #271505 50%, #1e1800 100%);
+      border-color: rgba(251,146,60,0.2);
+    }
+    .streak-counter-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.5rem; margin-bottom: 0.35rem;
+    }
+    .streak-number {
+      font-size: 3.5rem; font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, #f97316, #f59e0b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; letter-spacing: -0.04em;
+      font-variant-numeric: tabular-nums;
+    }
+    .streak-unit {
+      font-size: 1rem; font-weight: 800; color: #c2410c;
+      align-self: flex-end; padding-bottom: 0.4rem;
+    }
+    [data-theme="dark"] .streak-unit { color: #fb923c; }
+    .streak-sub {
+      font-size: 0.82rem; color: #9a3412; font-weight: 700; margin-top: 0.1rem;
+    }
+    [data-theme="dark"] .streak-sub { color: #fdba74; }
+
+    /* Milestone badges */
+    .milestone-grid {
+      display: flex; flex-wrap: wrap; gap: 0.65rem;
+      justify-content: center; margin-bottom: 1rem;
+    }
+    .milestone-badge {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 99px;
+      font-size: 0.82rem; font-weight: 700;
+      border: 1.5px solid;
+      transition: opacity 0.3s, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .milestone-badge.earned {
+      background: #fff;
+      border-color: rgba(107,140,122,0.35);
+      color: #2d4a3e;
+      box-shadow: 0 2px 10px rgba(107,140,122,0.14);
+    }
+    [data-theme="dark"] .milestone-badge.earned {
+      background: #1e1538; border-color: rgba(167,139,250,0.3); color: #c8e6d0;
+    }
+    .milestone-badge.unearned {
+      background: transparent;
+      border-color: rgba(107,140,122,0.15);
+      color: #b0a8c0;
+      opacity: 0.5;
+      filter: grayscale(0.6);
+    }
+    [data-theme="dark"] .milestone-badge.unearned { color: #6b5c8e; }
+    .milestone-badge.earned .badge-icon { filter: none; }
+
+    /* Daily quote */
+    .quote-card {
+      background: var(--surface2, #f8f4f0);
+      border: 1.5px solid rgba(107,140,122,0.15);
+      border-radius: 18px; padding: 1.1rem 1.25rem;
+      text-align: center;
+    }
+    [data-theme="dark"] .quote-card { background: #1a1030; border-color: rgba(167,139,250,0.12); }
+    .quote-eyebrow {
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #9b8bc0; margin-bottom: 0.4rem;
+    }
+    .quote-text {
+      font-size: 0.95rem; font-weight: 700; color: #2d4a3e;
+      line-height: 1.55; font-style: italic;
+    }
+    [data-theme="dark"] .quote-text { color: #c8e6d0; }
+
+    /* ── About section ───────────────────────────────────────── */
+    .about-section {
+      background: linear-gradient(135deg, #f0f7f3 0%, #fdf6f0 100%);
+      border-top: 1px solid rgba(107,140,122,0.15);
+      border-bottom: 1px solid rgba(107,140,122,0.15);
+    }
+    [data-theme="dark"] .about-section {
+      background: linear-gradient(135deg, #112318 0%, #1c1020 100%);
+    }
+    .about-card {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: #fff; border-radius: 20px; padding: 1.4rem 1.5rem;
+      border: 1.5px solid rgba(107,140,122,0.15);
+      box-shadow: 0 2px 12px rgba(107,140,122,0.08);
+    }
+    [data-theme="dark"] .about-card { background: #1e1538; border-color: rgba(167,139,250,0.18); }
+    .about-icon { font-size: 2rem; flex-shrink: 0; margin-top: 2px; }
+    .about-text h3 { font-size: 1rem; font-weight: 800; color: #2d4a3e; margin-bottom: 0.35rem; }
+    [data-theme="dark"] .about-text h3 { color: #c8e6d0; }
+    .about-text p  { font-size: 0.85rem; line-height: 1.6; color: #5a7268; }
+    [data-theme="dark"] .about-text p  { color: #9bbfad; }
+
+    /* ── Quick tools ─────────────────────────────────────────── */
+    .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (min-width: 640px) { .tool-grid { grid-template-columns: repeat(4, 1fr); } }
+    .tool-card {
+      display: flex; flex-direction: column; align-items: flex-start;
+      gap: 0.45rem; padding: 1.3rem; border-radius: 22px;
+      border: 1.5px solid rgba(107,140,122,0.15); text-decoration: none;
+      cursor: pointer; background: none; text-align: left; font-family: inherit;
+    }
+    .tool-icon { font-size: 1.9rem; }
+    .tool-icon-img { width: 52px; height: 52px; object-fit: contain; display: block; }
+    .tool-name { font-weight: 800; font-size: 0.9rem; color: var(--text, #1c0a3a); }
+    .tool-desc { font-size: 0.75rem; color: #9b8bc0; }
+
+    /* ── Footer ──────────────────────────────────────────────── */
+    .app-footer {
+      padding: 1.5rem 1.25rem 0.75rem;
+      text-align: center;
+      border-top: 1px solid rgba(107,140,122,0.15);
+      background: #f8f4f0;
+    }
+    [data-theme="dark"] .app-footer { background: #0d0820; }
+    .footer-logo { font-size: 1.5rem; margin-bottom: 0.4rem; }
+    .footer-tech {
+      font-size: 0.75rem; line-height: 1.6;
+      color: #9b8bc0; max-width: 480px; margin: 0 auto 0.6rem;
+    }
+    .footer-copy { font-size: 0.7rem; color: #b8a8d0; }
+
+    /* ── Emergency modal ─────────────────────────────────────── */
+    #emergencyModal {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(13,8,32,0.75); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    #emergencyModal.show { display: flex; }
+    .emergency-card {
+      background: var(--surface, #fff); border-radius: 28px; padding: 2rem;
+      max-width: 400px; width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+      animation: popInResult 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    .hotline-btn {
+      display: block; padding: 1rem 1.25rem;
+      background: rgba(239,68,68,0.08); border: 1.5px solid rgba(239,68,68,0.2);
+      border-radius: 16px; margin-bottom: 0.75rem;
+      color: #dc2626; font-weight: 700; text-decoration: none;
+      transition: background 0.18s, transform 0.18s cubic-bezier(0.22,1,0.36,1);
+    }
+    .hotline-btn:hover { background: rgba(239,68,68,0.15); transform: translateY(-2px); }
+    .hotline-small { display: block; font-size: 0.8rem; font-weight: 400; color: #b91c1c; margin-top: 0.2rem; }
+
+    /* ── Onboarding overlay ──────────────────────────────────── */
+    @keyframes overlayFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes overlayFadeOut { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes cardPopIn {
+      0%   { opacity: 0; transform: scale(0.82) translateY(24px); }
+      70%  { transform: scale(1.03) translateY(-2px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    #onboardOverlay {
+      position: fixed; inset: 0; z-index: 400;
+      display: flex; align-items: center; justify-content: center; padding: 1.25rem;
+      background: rgba(13, 8, 32, 0.55);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      animation: overlayFadeIn 0.35s ease both;
+    }
+    #onboardOverlay.hidden  { display: none; }
+    #onboardOverlay.fade-out { animation: overlayFadeOut 0.3s ease forwards; }
+
+    .onboard-card {
+      background: #ffffff; border-radius: 28px;
+      padding: 40px 36px 32px; max-width: 360px; width: 100%;
+      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.22);
+      position: relative; color: #1c0a3a;
+      animation: cardPopIn 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      font-family: 'Nunito', sans-serif;
+    }
+    .onboard-step.entering { animation: stepIn 0.28s ease both; }
+
+    .onboard-dots {
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; margin-bottom: 1.75rem;
+    }
+    .onboard-dot {
+      height: 8px; border-radius: 99px; background: #d1c4e9; width: 8px;
+      transition: width 0.3s cubic-bezier(0.22,1,0.36,1), background 0.3s ease;
+    }
+    .onboard-dot.active { width: 24px; background: #6b8c7a; }
+
+    .onboard-title {
+      font-size: 1.35rem; font-weight: 900; text-align: center;
+      color: #1c0a3a; margin-bottom: 0.65rem; line-height: 1.25;
+    }
+    .onboard-body {
+      font-size: 0.95rem; line-height: 1.65; color: #6b5a8e;
+      text-align: center; margin-bottom: 1.75rem;
+    }
+    .privacy-badge {
+      display: flex; align-items: flex-start; gap: 0.65rem;
+      background: #f0fdf4; border: 1.5px solid #bbf7d0;
+      border-radius: 14px; padding: 0.9rem 1rem; margin-bottom: 1.75rem; text-align: left;
+    }
+    .privacy-badge-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+    .privacy-badge-text { font-size: 0.84rem; line-height: 1.55; color: #166534; }
+    .privacy-badge-text strong { color: #14532d; }
+
+    .btn-onboard {
+      display: block; width: 100%; padding: 0.9rem 1rem;
+      border-radius: 16px; border: none;
+      background: linear-gradient(135deg, #6b8c7a, #5a7a68);
+      color: #fff; font-size: 1rem; font-weight: 800;
+      font-family: 'Nunito', sans-serif; cursor: pointer; text-align: center;
+      min-height: 48px;
+      transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), box-shadow 0.18s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 4px 14px rgba(107,140,122,0.35);
+    }
+    .btn-onboard:hover  { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(107,140,122,0.45); }
+    .btn-onboard:active { transform: scale(0.97); transition-duration: 0.08s; }
+
+    .onboard-skip {
+      display: block; text-align: center; margin-top: 1rem;
+      font-size: 0.82rem; color: #9b8bc0; cursor: pointer;
+      background: none; border: none; font-family: inherit;
+      text-decoration: underline; text-underline-offset: 2px; padding: 0;
+    }
+    .onboard-skip:hover { color: #6b5a8e; }
+
+    /* ── Shared section spacing ──────────────────────────────── */
+    .section { padding: 2.5rem 0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+    .container-sm { max-width: 520px; margin: 0 auto; padding: 0 1.25rem; }
+    .section-title {
+      font-size: 1.3rem; font-weight: 900; margin-bottom: 1.25rem;
+      color: #2d4a3e; text-align: center;
+    }
+    [data-theme="dark"] .section-title { color: #c8e6d0; }
+
+    /* Generic card */
+    .page-card {
+      background: #fff; border-radius: 24px; padding: 2rem;
+      border: 1.5px solid rgba(107,140,122,0.15);
+      box-shadow: 0 4px 20px rgba(107,140,122,0.1);
+    }
+    [data-theme="dark"] .page-card { background: #1e1538; border-color: rgba(167,139,250,0.18); }
+    .hidden { display: none !important; }
+
+    /* ── Input ───────────────────────────────────────────────── */
+    .mood-input {
+      width: 100%; padding: 0.85rem 1rem; border-radius: 14px;
+      border: 1.5px solid rgba(107,140,122,0.25);
+      background: #f8f4f0; font-family: 'Nunito', sans-serif;
+      font-size: 0.95rem; color: #2d4a3e;
+      outline: none; transition: border-color 0.2s;
+      margin: 0.75rem 0;
+    }
+    [data-theme="dark"] .mood-input {
+      background: #251c45; border-color: rgba(167,139,250,0.25); color: #f0eaff;
+    }
+    .mood-input:focus { border-color: #6b8c7a; }
+
+    /* ── Top nav ─────────────────────────────────────────────── */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.25rem; height: 60px;
+      background: rgba(248, 244, 240, 0.9); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(107,140,122,0.15);
+    }
+    [data-theme="dark"] .top-nav {
+      background: rgba(13, 8, 32, 0.9); border-color: rgba(167,139,250,0.15);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 1.05rem; font-weight: 900; color: #2d4a3e; text-decoration: none;
+    }
+    [data-theme="dark"] .nav-logo { color: #c8e6d0; }
+    .nav-links {
+      display: flex; gap: 0.75rem;
+      font-size: 1rem; font-weight: 800;
+    }
+    .nav-links a {
+      color: #2d4a3e; text-decoration: none;
+      padding: 0.5rem 1.3rem; border-radius: 99px;
+      background: rgba(107,140,122,0.12);
+      border: 1.5px solid rgba(107,140,122,0.25);
+      transition: background 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .nav-links a {
+      color: #c8e6d0;
+      background: rgba(167,139,250,0.12);
+      border-color: rgba(167,139,250,0.25);
+    }
+    .nav-links a:hover { background: rgba(107,140,122,0.25); transform: translateY(-1px); }
+    [data-theme="dark"] .nav-links a:hover { background: rgba(167,139,250,0.25); }
+
+    .dark-toggle {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 99px; border: none;
+      background: rgba(107,140,122,0.1); color: #2d4a3e;
+      font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; min-height: 36px;
+      transition: background 0.2s;
+    }
+    [data-theme="dark"] .dark-toggle { background: rgba(167,139,250,0.15); color: #c8e6d0; }
+    .dark-toggle:hover { background: rgba(107,140,122,0.2); }
+
+    /* ── Bottom nav ──────────────────────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: stretch;
+      background: rgba(248, 244, 240, 0.95); backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(107,140,122,0.15);
+      height: 64px;
+    }
+    @media (min-width: 768px) { .bottom-nav { display: none; } }
+    [data-theme="dark"] .bottom-nav {
+      background: rgba(13, 8, 32, 0.95); border-color: rgba(167,139,250,0.15);
+    }
+    .bottom-nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      text-decoration: none; font-size: 0.65rem; font-weight: 700;
+      color: #9b8bc0; transition: color 0.18s;
+    }
+    .bottom-nav-item:hover, .bottom-nav-item.active { color: #6b8c7a; }
+    [data-theme="dark"] .bottom-nav-item:hover,
+    [data-theme="dark"] .bottom-nav-item.active { color: #a8d5b8; }
+    .nav-icon { font-size: 1.35rem; }
+    body { padding-top: 60px; padding-bottom: 64px; }
+    @media (min-width: 768px) { body { padding-bottom: 0; } }
+
+    /* ── Hero blob decorations ───────────────────────────────── */
+    .hero-blob {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      opacity: 0.35; filter: blur(60px);
+    }
+    .hero-blob-1 { width: 340px; height: 340px; top: -80px; left: -80px; background: #6b8c7a; }
+    .hero-blob-2 { width: 260px; height: 260px; top: 40px; right: -60px; background: #e8846a; opacity: 0.25; }
+    .hero-blob-3 { width: 200px; height: 200px; bottom: -60px; left: 30%; background: #f8d4b0; opacity: 0.4; }
+
+    /* ── Mood result box ─────────────────────────────────────── */
+    #emotion-box { margin-top: 1.5rem; }
+    #mood-box {
+      display: inline-block; padding: 0.65rem 2rem;
+      border-radius: 99px; font-size: 1.3rem; font-weight: 800;
+    }
+
   </style>
 </head>
-<body class="bg-[#f8f4f0]">
+<body>
 
-  <!-- Top Navigation -->
-  <nav class="bg-white border-b border-[#e8d9c8] fixed w-full z-50 backdrop-blur-md">
-    <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <span class="text-3xl">🌿</span>
-        <span class="text-2xl font-semibold tracking-tight text-[#5d4a3f]">Mood Helper</span>
-      </div>
-      <div class="hidden md:flex items-center gap-10 text-base font-medium text-[#6b5c4f]">
-        <a href="/mood.html" class="nav-link">Home</a>
-        <a href="/how-to-start.html" class="nav-link">How to Start</a>
-      </div>
+  <!-- ── Privacy Banner (dismissible) ────────────────────────── -->
+  <div id="privacyBanner" role="note" aria-label="Privacy notice">
+    <span class="privacy-banner-text">
+      🔒 <span><strong>Privacy notice:</strong> Your photos are processed locally and never stored on any server.</span>
+    </span>
+    <button class="privacy-dismiss" onclick="dismissPrivacyBanner()" aria-label="Dismiss privacy notice">✕</button>
+  </div>
+
+  <!-- ── Top Nav ──────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <a href="/mood.html" class="nav-logo">
+      <span>🌿</span><span>Mood Helper</span>
+    </a>
+    <div class="nav-links">
+      <a href="/how-to-start.html">🚀 How to Start</a>
+      <a href="/emotions.html">📖 Learn</a>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <div class="hero-bg pt-32 pb-16 text-center">
-    <div class="max-w-4xl mx-auto px-6">
-      <h1 class="text-6xl md:text-7xl font-semibold tracking-tighter text-[#5d4a3f] leading-tight mb-6">
-        Find calm in every emotion
+  <!-- ── Hero ─────────────────────────────────────────────────── -->
+  <section class="hero-section">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+    <div class="hero-blob hero-blob-3"></div>
+    <div style="position:relative;z-index:1;">
+      <span class="hero-eyebrow">Your daily mood companion 🌿</span>
+      <h1 class="hero-title">
+        How are you feeling<br>
+        <span class="accent">today?</span>
       </h1>
-      <p class="text-2xl text-[#6b5c4f] mb-8">
-        Detect your mood • Get gentle support • Take care of your mental well-being
-      </p>
-      <button onclick="document.getElementById('take-photo-section').scrollIntoView({behavior: 'smooth'})"
-              class="bg-[#6b8c7a] hover:bg-[#5a7a68] text-white text-xl px-10 py-5 rounded-3xl transition shadow-md">
-        Let's check your mood now
+      <p class="hero-tagline">Detect your mood · get personalised support · track your emotional wellness journey.</p>
+      <button class="hero-cta btn" onclick="document.getElementById('photo-section').scrollIntoView({behavior:'smooth'})">
+        📸 Check my vibe
       </button>
     </div>
-  </div>
+  </section>
 
-  <!-- Mood Selection -->
-  <div id="moods" class="max-w-7xl mx-auto px-8 py-4">
-    <h2 class="text-4xl font-semibold text-center mb-8 text-[#5d4a3f]">How are you feeling today?</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-
-      <a href="/angry.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
-        <img src="/images/angry.jpg" alt="Angry" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
-        <h3 class="font-semibold text-xl text-[#8c5a4a]">Angry</h3>
-        <p class="text-sm text-[#8c5a4a]/70">Click to see calming methods</p>
-      </a>
-
-      <a href="/sad.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
-        <img src="/images/sad.jpg" alt="Sad" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
-        <h3 class="font-semibold text-xl text-[#4a5c7a]">Sad</h3>
-        <p class="text-sm text-[#4a5c7a]/70">Click to see comforting methods</p>
-      </a>
-
-      <a href="/happy.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
-        <img src="/images/happy.jpg" alt="Happy" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
-        <h3 class="font-semibold text-xl text-[#8c6f4a]">Happy</h3>
-        <p class="text-sm text-[#8c6f4a]/70">Click to celebrate & maintain joy</p>
-      </a>
-
-      <a href="/calm.html" class="emotion-card block bg-white rounded-3xl overflow-hidden shadow-md border border-[#e8d9c8] text-center p-6">
-        <img src="/images/calm.jpg" alt="Calm" class="w-20 h-20 mx-auto object-cover rounded-2xl mb-4">
-        <h3 class="font-semibold text-xl text-[#4a6b5a]">Calm</h3>
-        <p class="text-sm text-[#4a6b5a]/70">Click to deepen your peace</p>
-      </a>
-
+  <!-- ── Pick Your Mood ───────────────────────────────────────── -->
+  <section class="section" style="background:var(--surface2,#f8f4f0);border-bottom:1px solid rgba(107,140,122,0.12);">
+    <div class="container">
+      <h2 class="section-title reveal">Pick your mood</h2>
+      <div class="emotion-grid reveal-group">
+        <a href="/angry.html" class="emotion-card emotion-angry reveal">
+          <div class="emotion-card-img-wrap">
+            <img src="/images/angry.png" class="emotion-card-img" alt="Angry">
+          </div>
+          <span class="emotion-name">Angry</span>
+          <span class="emotion-sub">Channel that energy</span>
+        </a>
+        <a href="/sad.html" class="emotion-card emotion-sad reveal">
+          <div class="emotion-card-img-wrap">
+            <img src="/images/sad.png" class="emotion-card-img" alt="Sad">
+          </div>
+          <span class="emotion-name">Sad</span>
+          <span class="emotion-sub">You're not alone</span>
+        </a>
+        <a href="/happy.html" class="emotion-card emotion-happy reveal">
+          <div class="emotion-card-img-wrap">
+            <img src="/images/happy.png" class="emotion-card-img" alt="Happy">
+          </div>
+          <span class="emotion-name">Happy</span>
+          <span class="emotion-sub">Celebrate &amp; grow</span>
+        </a>
+        <a href="/calm.html" class="emotion-card emotion-calm reveal">
+          <div class="emotion-card-img-wrap">
+            <img src="/images/calm.png" class="emotion-card-img" alt="Calm">
+          </div>
+          <span class="emotion-name">Calm</span>
+          <span class="emotion-sub">Deepen your peace</span>
+        </a>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Take Photo Section -->
-  <div id="take-photo-section" class="max-w-md mx-auto px-6 pb-12">
-    <div class="bg-white rounded-3xl shadow-xl p-8 border border-[#e8d9c8]">
-      <h2 class="text-2xl font-semibold text-center text-[#5d4a3f] mb-6">Or check your mood now</h2>
-      <div class="relative bg-[#f0ede5] rounded-3xl overflow-hidden mb-8 border border-[#e8d9c8]">
-        <video id="video" autoplay playsinline class="w-full rounded-3xl"></video>
-        <canvas id="canvas" class="hidden"></canvas>
-      </div>
-      <div class="flex gap-4">
-        <button id="snap" class="flex-1 bg-[#6b8c7a] hover:bg-[#5a7a68] text-white font-medium py-5 rounded-2xl transition">📸 Take Photo</button>
-        <label class="flex-1 bg-[#e8d9c8] hover:bg-[#d4c4b0] text-[#5d4a3f] font-medium py-5 rounded-2xl transition text-center cursor-pointer">
-          📤 Upload Photo
-          <input type="file" id="upload" accept="image/*" class="hidden">
-        </label>
-      </div>
+  <!-- ── AI Detection ─────────────────────────────────────────── -->
+  <section class="section" id="photo-section">
+    <div class="container-sm">
+      <div class="page-card reveal">
+        <h2 style="font-size:1.3rem;font-weight:900;text-align:center;color:#2d4a3e;margin-bottom:0.35rem;">Or let AI detect your vibe</h2>
+        <p style="text-align:center;font-size:0.85rem;color:#9b8bc0;margin-bottom:1.4rem;font-weight:600;">Take a selfie — our AI reads your emotion in seconds 🤖</p>
 
-      <div id="emotion-box" class="hidden mt-8 text-center">
-        <div id="mood-box" class="inline-block px-6 py-3 rounded-3xl text-xl font-semibold shadow-md mb-4"></div>
-        
-        <p class="text-sm text-[#8c7a6b] mb-3">AI got it wrong? Choose your real mood:</p>
-        <div class="grid grid-cols-4 gap-3 mb-6">
-          <button onclick="overrideMood('Angry')" class="py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl text-sm font-medium">Angry</button>
-          <button onclick="overrideMood('Sad')" class="py-3 bg-[#b8c8d4] hover:bg-[#a8b8c4] text-white rounded-2xl text-sm font-medium">Sad</button>
-          <button onclick="overrideMood('Happy')" class="py-3 bg-[#f0d4b0] hover:bg-[#e0c4a0] text-white rounded-2xl text-sm font-medium">Happy</button>
-          <button onclick="overrideMood('Calm')" class="py-3 bg-[#b0c8b8] hover:bg-[#a0b8a8] text-white rounded-2xl text-sm font-medium">Calm</button>
+        <div class="video-wrapper">
+          <video id="video" autoplay playsinline></video>
+          <canvas id="canvas" class="hidden"></canvas>
+          <div id="detecting-overlay" class="hidden">
+            <div class="spinner"></div>
+            <p style="font-weight:700;font-size:0.9rem;">Reading your vibe…</p>
+          </div>
         </div>
 
-        <input id="note-input" type="text" placeholder="How are you feeling today?" 
-               class="w-full px-6 py-4 bg-[#f0ede5] rounded-2xl text-[#5d4a3f] placeholder-[#8c7a6b] focus:outline-none mb-4">
-        
-        <button onclick="saveToJournal()" 
-                class="w-full py-4 bg-[#6b8c7a] hover:bg-[#5a7a68] text-white font-medium rounded-2xl">
-          💾 Save to Mood Journal
+        <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;">
+          <button id="snap" onclick="takePhoto()" class="btn"
+            style="flex:1;border-radius:14px;background:linear-gradient(135deg,#6b8c7a,#5a7a68);color:#fff;border:none;font-size:0.95rem;font-weight:800;">
+            📸 Take Photo
+          </button>
+          <label class="btn"
+            style="flex:1;border-radius:14px;background:#f0ede5;color:#2d4a3e;border:1.5px solid rgba(107,140,122,0.25);cursor:pointer;font-size:0.95rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;">
+            📤 Upload
+            <input type="file" id="upload" accept="image/*" class="hidden" onchange="handleUpload(event)">
+          </label>
+        </div>
+
+        <!-- Result -->
+        <div id="emotion-box" class="hidden">
+
+          <!-- Confidence results card -->
+          <div class="result-card" id="result-card">
+            <!-- Main result row -->
+            <div class="result-main">
+              <div class="result-emotion" id="result-emotion-label">😌 Calm</div>
+              <div class="result-badge" id="result-badge">0% confident</div>
+            </div>
+            <!-- Main confidence bar -->
+            <div class="conf-bar-wrap">
+              <div class="conf-bar-fill" id="conf-bar-fill"></div>
+            </div>
+            <!-- Breakdown -->
+            <div id="breakdown-rows" style="margin-top:0.9rem;display:flex;flex-direction:column;gap:0.45rem;">
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">😠</span>
+                <span class="breakdown-label">Angry</span>
+                <div class="breakdown-track">
+                  <div class="breakdown-fill bar-angry" id="bar-Angry"></div>
+                </div>
+                <span class="breakdown-pct" id="pct-Angry">0%</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">😢</span>
+                <span class="breakdown-label">Sad</span>
+                <div class="breakdown-track">
+                  <div class="breakdown-fill bar-sad" id="bar-Sad"></div>
+                </div>
+                <span class="breakdown-pct" id="pct-Sad">0%</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">😄</span>
+                <span class="breakdown-label">Happy</span>
+                <div class="breakdown-track">
+                  <div class="breakdown-fill bar-happy" id="bar-Happy"></div>
+                </div>
+                <span class="breakdown-pct" id="pct-Happy">0%</span>
+              </div>
+              <div class="breakdown-row">
+                <span class="breakdown-emoji">😌</span>
+                <span class="breakdown-label">Calm</span>
+                <div class="breakdown-track">
+                  <div class="breakdown-fill bar-calm" id="bar-Calm"></div>
+                </div>
+                <span class="breakdown-pct" id="pct-Calm">0%</span>
+              </div>
+            </div>
+          </div>
+
+          <p style="font-size:0.8rem;color:#9b8bc0;text-align:center;margin-bottom:0.65rem;font-weight:600;">AI got it wrong? Override:</p>
+          <div class="override-grid">
+            <button onclick="overrideMood('Angry')" class="btn" style="background:#fee2e2;color:#b91c1c;border:1.5px solid rgba(185,28,28,0.2);">😠 Angry</button>
+            <button onclick="overrideMood('Sad')"   class="btn" style="background:#ede9fe;color:#4338ca;border:1.5px solid rgba(67,56,202,0.2);">😢 Sad</button>
+            <button onclick="overrideMood('Happy')" class="btn" style="background:#fef3c7;color:#b45309;border:1.5px solid rgba(180,83,9,0.2);">😄 Happy</button>
+            <button onclick="overrideMood('Calm')"  class="btn" style="background:#d1fae5;color:#047857;border:1.5px solid rgba(4,120,87,0.2);">😌 Calm</button>
+          </div>
+
+          <input id="note-input" type="text" placeholder="Add a note about how you're feeling…" class="mood-input">
+          <button onclick="saveToJournal()" class="btn"
+            style="width:100%;border-radius:14px;background:linear-gradient(135deg,#6b8c7a,#5a7a68);color:#fff;border:none;font-size:0.95rem;font-weight:800;">
+            💾 Save to Journal
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── Streak & Motivation ─────────────────────────────────── -->
+  <section class="section" id="streak-section" style="border-top:1px solid rgba(107,140,122,0.12);">
+    <div class="container-sm">
+      <h2 class="section-title reveal">Your Progress</h2>
+
+      <!-- Streak counter card -->
+      <div class="streak-card reveal">
+        <div class="streak-counter-row">
+          <span class="streak-fire">🔥</span>
+          <span class="streak-number" id="streak-number">0</span>
+          <span class="streak-unit">Day Streak!</span>
+        </div>
+        <p class="streak-sub" id="streak-sub">Keep checking in every day to grow your streak</p>
+      </div>
+
+      <!-- Milestone badges -->
+      <div class="milestone-grid reveal" id="milestone-grid">
+        <div class="milestone-badge unearned" id="badge-1">
+          <span class="badge-icon">🌱</span><span>First Check-in</span>
+        </div>
+        <div class="milestone-badge unearned" id="badge-3">
+          <span class="badge-icon">⭐</span><span>3-Day Streak</span>
+        </div>
+        <div class="milestone-badge unearned" id="badge-7">
+          <span class="badge-icon">🔥</span><span>7-Day Streak</span>
+        </div>
+        <div class="milestone-badge unearned" id="badge-30">
+          <span class="badge-icon">💎</span><span>30-Day Streak</span>
+        </div>
+      </div>
+
+      <!-- Daily motivational quote -->
+      <div class="quote-card reveal">
+        <div class="quote-eyebrow">✨ Today's Motivation</div>
+        <p class="quote-text" id="daily-quote"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quick Tools ──────────────────────────────────────────── -->
+  <section class="section" style="background:var(--surface2,#f8f4f0);border-top:1px solid rgba(107,140,122,0.12);">
+    <div class="container">
+      <h2 class="section-title reveal">Quick Tools</h2>
+      <div class="tool-grid reveal-group">
+        <a href="/streak.html" class="tool-card reveal" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);">
+          <span class="tool-icon">🔥</span>
+          <span class="tool-name">Daily Streak</span>
+          <span class="tool-desc">Keep your streak going</span>
+        </a>
+        <a href="/dashboard.html" class="tool-card reveal" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);">
+          <span class="tool-icon">📊</span>
+          <span class="tool-name">Mood Dashboard</span>
+          <span class="tool-desc">See your trends</span>
+        </a>
+        <a href="/calendar.html" class="tool-card reveal" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);">
+          <span class="tool-icon">📅</span>
+          <span class="tool-name">Calendar</span>
+          <span class="tool-desc">Mood history</span>
+        </a>
+        <button onclick="showEmergency()" class="tool-card reveal" style="background:linear-gradient(135deg,#fff1f2,#ffe4e6);">
+          <span class="tool-icon">🚨</span>
+          <span class="tool-name" style="color:#b91c1c;">Emergency</span>
+          <span class="tool-desc">Need help now?</span>
         </button>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Quick Tools -->
-  <div class="max-w-7xl mx-auto px-8 py-12 bg-white border-t border-[#e8d9c8]">
-    <h2 class="text-3xl font-semibold text-center mb-10 text-[#5d4a3f]">Quick Tools</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-      <a href="/streak.html" class="bg-[#e8f0e8] hover:bg-[#d0e0d8] p-8 rounded-3xl text-left transition">
-        <div class="text-4xl mb-4">🔥</div>
-        <h3 class="font-semibold text-[#4a6b5a]">Daily Streak & Motivation</h3>
-      </a>
-      <a href="/dashboard.html" class="bg-[#f0f4eb] hover:bg-[#e0e8d8] p-8 rounded-3xl text-left transition">
-        <div class="text-4xl mb-4">📈</div>
-        <h3 class="font-semibold text-[#4a6b5a]">Mood Trend Dashboard</h3>
-      </a>
-      <a href="/calendar.html" class="bg-[#f8f0e8] hover:bg-[#f0e0d8] p-8 rounded-3xl text-left transition">
-        <div class="text-4xl mb-4">📅</div>
-        <h3 class="font-semibold text-[#4a6b5a]">Mood History Calendar</h3>
-      </a>
-      <button onclick="showEmergency()" class="bg-[#f8e8e8] hover:bg-[#f0d8d8] p-8 rounded-3xl text-left transition">
-        <div class="text-4xl mb-4">🚨</div>
-        <h3 class="font-semibold text-[#8c4a4a]">Emergency Support</h3>
-      </button>
-    </div>
-  </div>
+  <!-- ── Footer ───────────────────────────────────────────────── -->
+  <footer class="app-footer">
+    <div class="footer-logo">🌿</div>
+    <p class="footer-copy">Mood Helper</p>
+  </footer>
 
-  <!-- Emergency Support Modal -->
-  <div id="emergencyModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100]">
-    <div class="bg-white rounded-3xl max-w-md w-full mx-4 p-8">
-      <h2 class="text-2xl font-semibold text-[#8c4a4a] mb-6">Emergency Support</h2>
-      <p class="text-[#6b5c4f] mb-8">You are not alone. Call anytime — someone is ready to listen.</p>
-      
-      <div class="space-y-6">
-        <div>
-          <a href="tel:23892222" class="block text-xl font-medium text-[#8c4a4a] hover:underline">2389 2222</a>
-          <p class="text-sm text-[#6b5c4f]">Samaritan Befrienders Hong Kong (防自殺協會) — 24-hour emotional support</p>
-        </div>
-        <div>
-          <a href="tel:28960000" class="block text-xl font-medium text-[#8c4a4a] hover:underline">2896 0000</a>
-          <p class="text-sm text-[#6b5c4f]">Shall We Talk (The Samaritans) — 24-hour youth & emotional support</p>
-        </div>
-      </div>
-
-      <button onclick="hideEmergency()" 
-              class="mt-10 w-full py-4 bg-gray-200 hover:bg-gray-300 text-[#5d4a3f] font-medium rounded-2xl">
+  <!-- ── Emergency Modal ──────────────────────────────────────── -->
+  <div id="emergencyModal">
+    <div class="emergency-card">
+      <h2 style="font-size:1.35rem;font-weight:900;color:#dc2626;text-align:center;margin-bottom:0.5rem;">You are not alone 💙</h2>
+      <p style="text-align:center;font-size:0.88rem;color:#6b5c4f;margin-bottom:1.5rem;font-weight:600;">Please reach out for immediate support.</p>
+      <a href="tel:23892222" class="hotline-btn">
+        Samaritan Befrienders Hong Kong
+        <span class="hotline-small">2389 2222 • 24 hours</span>
+      </a>
+      <a href="tel:28960000" class="hotline-btn">
+        Youthline
+        <span class="hotline-small">2896 0000</span>
+      </a>
+      <button onclick="hideEmergency()" class="btn"
+        style="width:100%;margin-top:0.5rem;border-radius:14px;background:#f0ede5;color:#2d4a3e;border:1.5px solid rgba(107,140,122,0.2);font-weight:800;">
         Close
       </button>
     </div>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════
+       ONBOARDING OVERLAY (first-visit only)
+       localStorage key: "moodHelperOnboarded"
+  ════════════════════════════════════════════════════════════ -->
+  <div id="onboardOverlay" class="hidden" aria-modal="true" role="dialog" aria-label="Welcome to Mood Helper">
+    <div class="onboard-card" id="onboardCard">
+
+      <div class="onboard-dots">
+        <div class="onboard-dot active" id="odot-0"></div>
+        <div class="onboard-dot"        id="odot-1"></div>
+        <div class="onboard-dot"        id="odot-2"></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="onboard-step" id="ostep-0">
+        <span class="onboard-emoji">📸</span>
+        <h2 class="onboard-title">Detect Your Mood</h2>
+        <p class="onboard-body">
+          Take a selfie or upload a photo.<br>
+          Our AI analyses your facial expression<br>in seconds.
+        </p>
+        <button class="btn-onboard" onclick="onboardNext(1)">Next →</button>
+        <button class="onboard-skip" onclick="dismissOnboard()">Skip</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="onboard-step hidden" id="ostep-1">
+        <span class="onboard-emoji">🌿</span>
+        <h2 class="onboard-title">Get Personalised Support</h2>
+        <p class="onboard-body">
+          Receive music, meditation and workout recommendations matched to your current emotion.
+        </p>
+        <button class="btn-onboard" onclick="onboardNext(2)">Next →</button>
+        <button class="onboard-skip" onclick="dismissOnboard()">Skip</button>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="onboard-step hidden" id="ostep-2">
+        <span class="onboard-emoji">🔒</span>
+        <h2 class="onboard-title">Your Privacy Matters</h2>
+        <div class="privacy-badge">
+          <span class="privacy-badge-icon">🛡️</span>
+          <span class="privacy-badge-text">
+            Your photos are <strong>analysed on our server and immediately discarded</strong>.
+            We <strong>never store your images</strong> or share your data with third parties.
+          </span>
+        </div>
+        <button class="btn-onboard" onclick="dismissOnboard()">Let's Start! 🚀</button>
+        <button class="onboard-skip" onclick="dismissOnboard()">Skip</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Bottom Nav ────────────────────────────────────────────── -->
+  <nav class="bottom-nav">
+    <a href="/mood.html"      class="bottom-nav-item active"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html"   class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html"    class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
+
   <script>
-    // Camera + AI detection 
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const snapBtn = document.getElementById('snap');
-    const uploadInput = document.getElementById('upload');
-    const emotionBox = document.getElementById('emotion-box');
-    const moodBox = document.getElementById('mood-box');
+    // ── Dark mode: sync .dark class on body ───────────────────
+    function syncDarkClass() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      dark ? document.body.classList.add('dark') : document.body.classList.remove('dark');
+    }
+    syncDarkClass();
 
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-      .then(stream => video.srcObject = stream);
+    // ── Privacy banner dismiss ─────────────────────────────────
+    const PRIVACY_KEY = 'privacyBannerDismissed';
+    function dismissPrivacyBanner() {
+      document.getElementById('privacyBanner').classList.add('hidden');
+      localStorage.setItem(PRIVACY_KEY, 'true');
+    }
+    if (localStorage.getItem(PRIVACY_KEY)) {
+      document.getElementById('privacyBanner').classList.add('hidden');
+    }
 
-    snapBtn.addEventListener('click', () => {
-      canvas.width = video.videoWidth || 640;
+    // ── Page-exit helper ───────────────────────────────────────
+    function navigateTo(url) {
+      document.body.classList.add('exiting');
+      setTimeout(() => { window.location.href = url; }, 300);
+    }
+    document.addEventListener('click', function (e) {
+      const link = e.target.closest('a[href]');
+      if (!link) return;
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('tel:') || href.startsWith('mailto:') || href.startsWith('#') || href.startsWith('http')) return;
+      if (document.body.classList.contains('exiting')) return;
+      e.preventDefault();
+      navigateTo(href);
+    });
+
+    // ── Stagger-reveal via IntersectionObserver ────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── Camera ─────────────────────────────────────────────────
+    let stream = null;
+    let currentDetectedMood = "";
+
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+        document.getElementById('video').srcObject = stream;
+      } catch (err) {
+        console.warn("Cannot access camera.");
+      }
+    }
+
+    function takePhoto() {
+      const video  = document.getElementById('video');
+      const canvas = document.getElementById('canvas');
+      canvas.width  = video.videoWidth  || 640;
       canvas.height = video.videoHeight || 480;
       canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
       canvas.toBlob(blob => sendToServer(blob), 'image/jpeg', 0.85);
-    });
+    }
 
-    uploadInput.addEventListener('change', e => {
+    function handleUpload(e) {
       const file = e.target.files[0];
       if (file) sendToServer(file);
-    });
-
-    let currentDetectedMood = "";
+    }
 
     async function sendToServer(file) {
       const formData = new FormData();
       formData.append('file', file);
+      document.getElementById('detecting-overlay').classList.remove('hidden');
       try {
-        const res = await fetch('http://localhost:5001/predict', { method: 'POST', body: formData });
+        const res  = await fetch('http://localhost:5001/predict', { method: 'POST', body: formData });
         const data = await res.json();
         if (data.emotion === "Neutral") data.emotion = "Calm";
         currentDetectedMood = data.emotion;
-        emotionBox.classList.remove('hidden');
-
-        let colorClass = data.emotion === "Angry" ? "bg-[#d4b8a8] text-[#8c5a4a]" : 
-                         data.emotion === "Happy" ? "bg-[#f0d4b0] text-[#8c6f4a]" :
-                         data.emotion === "Sad" ? "bg-[#b8c8d4] text-[#4a5c7a]" : "bg-[#b0c8b8] text-[#4a6b5a]";
-        moodBox.className = `inline-block px-6 py-3 rounded-3xl text-xl font-semibold shadow-md ${colorClass}`;
-        moodBox.textContent = data.emotion;
+        showMoodResult(data.emotion, data.confidence, data.all_scores);
+        document.getElementById('detecting-overlay').classList.add('hidden');
       } catch (err) {
-        moodBox.textContent = "Cannot connect to AI";
+        alert("Cannot connect to AI. Make sure the backend is running.");
+        document.getElementById('detecting-overlay').classList.add('hidden');
       }
+    }
+
+    function showMoodResult(mood, confidence, allScores) {
+      const emojiMap = { Angry: '😠', Sad: '😢', Happy: '😄', Calm: '😌' };
+
+      // Main label + badge
+      const label = document.getElementById('result-emotion-label');
+      const badge = document.getElementById('result-badge');
+      label.textContent = `${emojiMap[mood] || ''} ${mood}`;
+      const confNum = confidence != null ? parseFloat(confidence) : null;
+      badge.textContent = `${confNum != null && !isNaN(confNum) ? confNum.toFixed(1) : '—'}% confident`;
+
+      // Main bar colour
+      const mainFill = document.getElementById('conf-bar-fill');
+      mainFill.className = `conf-bar-fill bar-${mood.toLowerCase()}`;
+      mainFill.style.width = '0%';
+
+      // Reset breakdown bars
+      ['Angry','Sad','Happy','Calm'].forEach(cls => {
+        document.getElementById(`bar-${cls}`).style.width = '0%';
+        document.getElementById(`pct-${cls}`).textContent = '0%';
+      });
+
+      // Show the card
+      const card = document.getElementById('result-card');
+      card.classList.remove('pop-result');
+      void card.offsetWidth; // reflow
+      card.classList.add('pop-result');
+      document.getElementById('emotion-box').classList.remove('hidden');
+
+      // Animate bars after paint
+      setTimeout(() => {
+        if (confNum != null && !isNaN(confNum)) {
+          mainFill.style.width = `${confNum}%`;
+        }
+        if (allScores) {
+          ['Angry','Sad','Happy','Calm'].forEach(cls => {
+            const val = allScores[cls] || 0;
+            document.getElementById(`bar-${cls}`).style.width = `${val}%`;
+            document.getElementById(`pct-${cls}`).textContent = `${val}%`;
+          });
+        }
+      }, 50);
+    }
+
+    function overrideWithScores(newMood) {
+      // When overriding, show result without confidence data
+      showMoodResult(newMood, null, null);
     }
 
     function overrideMood(newMood) {
       currentDetectedMood = newMood;
-      let colorClass = newMood === "Angry" ? "bg-[#d4b8a8] text-[#8c5a4a]" : 
-                       newMood === "Happy" ? "bg-[#f0d4b0] text-[#8c6f4a]" :
-                       newMood === "Sad" ? "bg-[#b8c8d4] text-[#4a5c7a]" : "bg-[#b0c8b8] text-[#4a6b5a]";
-      moodBox.className = `inline-block px-6 py-3 rounded-3xl text-xl font-semibold shadow-md ${colorClass}`;
-      moodBox.textContent = newMood;
+      overrideWithScores(newMood);
     }
 
     function saveToJournal() {
-      const note = document.getElementById('note-input').value.trim();
-      const mood = currentDetectedMood || "Calm";
-      const now = new Date();
+      const note  = document.getElementById('note-input').value.trim();
+      const mood  = currentDetectedMood || "Calm";
       const entry = {
-        datetime: now.toLocaleString('en-GB', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }),
+        datetime: new Date().toLocaleString('en-GB'),
         mood: mood,
         note: note || "No note"
       };
-
       let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
       journal.unshift(entry);
       localStorage.setItem('moodJournal', JSON.stringify(journal));
-
       alert("✅ Saved to Mood Journal!");
       document.getElementById('note-input').value = "";
       document.getElementById('emotion-box').classList.add('hidden');
     }
 
-    // Emergency Support Modal
-    function showEmergency() {
-      document.getElementById('emergencyModal').classList.remove('hidden');
-      document.getElementById('emergencyModal').classList.add('flex');
+    function showEmergency() { document.getElementById('emergencyModal').classList.add('show'); }
+    function hideEmergency() { document.getElementById('emergencyModal').classList.remove('show'); }
+
+    // ── Onboarding ─────────────────────────────────────────────
+    const ONBOARD_KEY = 'moodHelperOnboarded';
+    let currentOnboardStep = 0;
+
+    function onboardNext(n) {
+      document.getElementById(`ostep-${currentOnboardStep}`).classList.add('hidden');
+      document.getElementById(`odot-${currentOnboardStep}`).classList.remove('active');
+      currentOnboardStep = n;
+      const nextStep = document.getElementById(`ostep-${currentOnboardStep}`);
+      nextStep.classList.remove('hidden');
+      nextStep.classList.remove('entering');
+      void nextStep.offsetWidth;
+      nextStep.classList.add('entering');
+      document.getElementById(`odot-${currentOnboardStep}`).classList.add('active');
     }
 
-    function hideEmergency() {
-      document.getElementById('emergencyModal').classList.add('hidden');
-      document.getElementById('emergencyModal').classList.remove('flex');
+    function dismissOnboard() {
+      const overlay = document.getElementById('onboardOverlay');
+      overlay.classList.add('fade-out');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('fade-out');
+      }, 300);
+      localStorage.setItem(ONBOARD_KEY, 'true');
     }
+
+    function checkOnboard() {
+      if (!localStorage.getItem(ONBOARD_KEY)) {
+        document.getElementById('onboardOverlay').classList.remove('hidden');
+      }
+    }
+
+    // ── Streak & Motivation ─────────────────────────────────────
+
+    const DAILY_QUOTES = [
+      "Rest is productive. Taking care of you matters. 😌",         // Sun
+      "Small steps every day lead to big changes. 💪",              // Mon
+      "Your feelings are valid. Be kind to yourself today. 💙",     // Tue
+      "Progress, not perfection. You're doing amazing. ⭐",         // Wed
+      "Checking in with yourself is an act of self-love. 🌿",       // Thu
+      "You've made it through every difficult day so far. 🔥",      // Fri
+      "Every sunrise brings a new chance to reset. 🌅"              // Sat
+    ];
+
+    function parseMoodDate(entry) {
+      // Parses "dd/mm/yyyy, hh:mm:ss" (en-GB locale) or ISO date string
+      if (entry.datetime) {
+        const datePart = entry.datetime.split(',')[0].trim();
+        const parts = datePart.split('/');
+        if (parts.length === 3) {
+          const d = new Date(parseInt(parts[2],10), parseInt(parts[1],10)-1, parseInt(parts[0],10));
+          d.setHours(0,0,0,0);
+          if (!isNaN(d)) return d;
+        }
+      }
+      if (entry.date) {
+        const d = new Date(entry.date); d.setHours(0,0,0,0);
+        if (!isNaN(d)) return d;
+      }
+      return null;
+    }
+
+    function dateKey(d) { return d.toISOString().split('T')[0]; }
+
+    function calcCurrentStreak() {
+      const journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
+      if (journal.length === 0) return 0;
+      const daySet = new Set();
+      journal.forEach(e => { const d = parseMoodDate(e); if (d) daySet.add(dateKey(d)); });
+      const today = new Date(); today.setHours(0,0,0,0);
+      let streak = 0;
+      let cursor = new Date(today);
+      // Allow today to not have an entry yet — start check from yesterday if today missing
+      if (!daySet.has(dateKey(cursor))) cursor.setDate(cursor.getDate() - 1);
+      while (daySet.has(dateKey(cursor))) {
+        streak++;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      return streak;
+    }
+
+    function animateCount(el, target, duration) {
+      if (target === 0) { el.textContent = '0'; return; }
+      const startTime = performance.now();
+      function step(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        el.textContent = Math.round(eased * target);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function initStreakSection() {
+      const streak = calcCurrentStreak();
+      const numEl  = document.getElementById('streak-number');
+      const subEl  = document.getElementById('streak-sub');
+
+      // Count-up animation
+      animateCount(numEl, streak, 900);
+
+      // Sub-text
+      if (streak === 0) {
+        subEl.textContent = 'Start your streak — check in today! 🌱';
+      } else if (streak === 1) {
+        subEl.textContent = 'Great start! Come back tomorrow to keep it going.';
+      } else if (streak < 7) {
+        subEl.textContent = `${streak} days and counting — you're building a habit! 💪`;
+      } else if (streak < 30) {
+        subEl.textContent = `${streak} days strong — incredible consistency! 🌟`;
+      } else {
+        subEl.textContent = `${streak} days! You're a Mood Helper legend. 🏆`;
+      }
+
+      // Milestone badges
+      const milestones = [
+        { id: 'badge-1',  threshold: 1  },
+        { id: 'badge-3',  threshold: 3  },
+        { id: 'badge-7',  threshold: 7  },
+        { id: 'badge-30', threshold: 30 },
+      ];
+      milestones.forEach(({ id, threshold }) => {
+        const el = document.getElementById(id);
+        if (streak >= threshold) {
+          el.classList.remove('unearned');
+          el.classList.add('earned');
+        }
+      });
+
+      // Daily quote (indexed by day of week, 0 = Sunday)
+      const dayIndex = new Date().getDay();
+      document.getElementById('daily-quote').textContent = `"${DAILY_QUOTES[dayIndex]}"`;
+    }
+
+    // ── Init ───────────────────────────────────────────────────
+    window.onload = () => {
+      startCamera();
+      checkOnboard();
+      initStreakSection();
+    };
   </script>
 </body>
 </html>

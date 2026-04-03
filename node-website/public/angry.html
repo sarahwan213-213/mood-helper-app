@@ -1,61 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Angry - Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Angry • Mood Helper</title>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body {
-      background: linear-gradient(135deg, #f9e8d8 0%, #f0d0b8 50%, #e8b4a0 100%);
+    .mood-hero {
+      background: linear-gradient(135deg, #667EEA 0%, #5A67D8 40%, #4F46E5 100%);
+      padding: 72px 1.25rem 48px;
+      text-align: center;
       position: relative;
       overflow: hidden;
     }
-    .illustration {
-      position: absolute;
-      opacity: 0.18;
-      pointer-events: none;
-      z-index: 0;
-      animation: float 28s infinite linear;
+    .mood-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.18) 0%, transparent 60%);
+    }
+    .mood-hero-img {
+      width: 110px; height: 110px; object-fit: contain;
+      display: block; margin: 0 auto 1.1rem; position: relative;
+      animation: float 4s ease-in-out infinite;
+      filter: drop-shadow(0 6px 18px rgba(102,126,234,0.4));
     }
     @keyframes float {
-      0% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-25px) rotate(5deg); }
-      100% { transform: translateY(0) rotate(0deg); }
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+    .mood-hero h1 { font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; position: relative; letter-spacing: -0.02em; }
+    .mood-hero p  { font-size: 1.05rem; color: rgba(255,255,255,0.92); position: relative; }
+    .content-section { padding: 2rem 0 4rem; }
+    .mood-action-btn {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1rem 1.25rem; border-radius: 18px; border: none;
+      background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+      color: #3730A3; font-weight: 800; font-size: 1rem;
+      cursor: pointer; text-align: left; font-family: inherit;
+      width: 100%;
+      box-shadow: 0 2px 10px rgba(90,171,212,0.12);
+      transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), box-shadow 0.18s;
+    }
+    .mood-action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(90,171,212,0.22); }
+    .mood-action-btn span { font-size: 1.3rem; }
+    @keyframes angrPulse {
+      0%, 100% { transform: scale(1); opacity: 0.15; }
+      50%       { transform: scale(1.6); opacity: 0; }
+    }
+    @keyframes angrFloat {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      50%       { transform: translateY(-12px) translateX(6px); }
+    }
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      animation: angrPulse 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .hero-orb-1 { width: 80px; height: 80px; top: 15%; left: 10%; animation-delay: 0s; }
+    .hero-orb-2 { width: 50px; height: 50px; top: 60%; right: 12%; animation-delay: 0.7s; }
+    .hero-orb-3 { width: 35px; height: 35px; top: 30%; right: 20%; animation-delay: 1.3s; }
+    .affirmation-card {
+      background: rgba(255,255,255,0.13);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 16px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      backdrop-filter: blur(4px);
+    }
+    .affirmation-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .affirmation-text {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.55;
     }
   </style>
 </head>
-<body class="min-h-screen">
+<body class="with-bottom-nav">
 
-  <div class="illustration text-7xl" style="top: 20%; left: 10%;">🍂</div>
-  <div class="illustration text-6xl" style="top: 45%; right: 15%; animation-delay: -10s;">🌿</div>
+  <!-- Mood Hero -->
+  <div class="mood-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <img src="/images/angry.png" class="mood-hero-img" alt="Angry">
+    <h1>You're feeling Angry</h1>
+    <p>Let's work through this together 💙</p>
+  </div>
 
-  <div class="max-w-md mx-auto pt-12 px-6 relative z-10">
-    <h1 class="text-4xl font-bold text-[#8c4a3a] text-center">You're feeling Angry</h1>
-    <p class="text-center text-[#a87a6a] mt-3">It's okay. Let's gently work with this feeling.</p>
+  <div class="content-section">
+    <div class="container-sm">
+      <a href="/mood.html" class="back-btn fade-up" style="margin-bottom:1.5rem;display:inline-flex;">Back to Home</a>
 
-    <div class="mt-10 space-y-4">
-      <button onclick="goTo('/meditation-angry.html')" class="w-full py-6 bg-[#e8b4a0] hover:bg-[#d9a38f] text-white font-medium rounded-3xl text-lg shadow">🧘 Meditation for Angry</button>
-      <button onclick="goTo('/music-angry.html')" class="w-full py-6 bg-[#e8b4a0] hover:bg-[#d9a38f] text-white font-medium rounded-3xl text-lg shadow">🎵 Play Music for Angry</button>
-      <button onclick="goTo('/workout-angry.html')" class="w-full py-6 bg-[#e8b4a0] hover:bg-[#d9a38f] text-white font-medium rounded-3xl text-lg shadow">🏃 Workout Video for Angry</button>
-    </div>
+      <div class="affirmation-card fade-up">
+        <span class="affirmation-icon">💜</span>
+        <p class="affirmation-text">Your feelings are valid. Anger is energy — let's channel it into something that helps you feel better.</p>
+      </div>
 
-    <div class="mt-12 bg-white rounded-3xl shadow p-6">
-      <p class="text-center text-[#5d4a3f] font-medium mb-4">Would you like to save this moment?</p>
-      <input id="note-input" type="text" placeholder="e.g. exam stress today" 
-             class="w-full px-5 py-4 bg-[#f9e8d8] border border-[#e8d9c8] rounded-2xl focus:outline-none text-gray-700 mb-4">
-      <button onclick="saveToJournal()" class="w-full py-4 bg-[#d4b89e] hover:bg-[#c9a98f] text-white font-medium rounded-2xl transition">
-        💾 Save to Mood Journal
-      </button>
-    </div>
+      <!-- Action Buttons -->
+      <div style="display:flex;flex-direction:column;gap:0.85rem;margin-bottom:2rem;" class="fade-up-1">
+        <button onclick="location.href='/meditation-angry.html'" class="mood-action-btn">
+          <span>🧘</span> Meditation for Angry
+        </button>
+        <button onclick="location.href='/music-angry.html'" class="mood-action-btn">
+          <span>🎵</span> Music for Angry
+        </button>
+        <button onclick="location.href='/workout-angry.html'" class="mood-action-btn">
+          <span>🏃</span> Workout for Angry
+        </button>
+      </div>
 
-    <!-- Back Button -->
-    <div class="text-center mt-12">
-      <a href="/mood.html" class="inline-flex items-center gap-2 text-[#a87a6a] hover:text-[#8c4a3a] font-medium">
-        ← Back to Mood Detection
-      </a>
+      <!-- Journal Card -->
+      <div class="card fade-up-2">
+        <h3 style="font-weight:800;font-size:1.1rem;margin-bottom:0.3rem;">Save this moment 📝</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Write how you're feeling right now</p>
+        <input id="note-input" type="text" placeholder="e.g. exam stress today..."
+               class="input" style="margin-bottom:1rem;">
+        <button onclick="saveToJournal()" class="btn btn-block btn-lg" style="border-radius:16px;background:linear-gradient(135deg,#667EEA,#4F46E5);color:#fff;border:none;font-weight:800;">
+          💾 Save to Journal
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
 
   <script>
     function goTo(page) { window.location.href = page; }
@@ -66,8 +150,19 @@
       let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
       journal.unshift(entry);
       localStorage.setItem('moodJournal', JSON.stringify(journal));
-      alert("✅ Saved to Mood Journal!");
+      showToast("✅ Saved to Journal!");
       document.getElementById('note-input').value = "";
+    }
+    function showToast(msg) {
+      let t = document.getElementById('_toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = '_toast';
+        t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2d4a3e;color:#fff;padding:0.7rem 1.4rem;border-radius:99px;font-weight:700;font-size:0.9rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg; t.style.opacity = '1';
+      clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity = '0'; }, 2500);
     }
   </script>
 </body>

@@ -1,38 +1,92 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daily Streak • Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+    .streak-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.25rem 5rem;
+      text-align: center;
+    }
+    .fire-emoji {
+      font-size: 6rem;
+      display: block;
+      margin-bottom: 1rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    .streak-big {
+      font-size: clamp(5rem, 20vw, 8rem);
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      background: linear-gradient(135deg, #FF6B35, #F59E0B, #EC4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+    .streak-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 1.5rem;
+    }
+    .streak-msg {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--text);
+      max-width: 320px;
+      line-height: 1.5;
+      margin-bottom: 2.5rem;
+    }
   </style>
 </head>
-<body class="bg-[#f8f4f0] min-h-screen flex items-center justify-center">
-  <div class="max-w-md mx-auto px-6 text-center">
-    <a href="/mood.html" class="inline-flex items-center gap-2 text-[#6b8c7a] mb-12">← Back to Home</a>
+<body class="with-bottom-nav">
 
-    <h1 class="text-5xl font-light text-[#4a6b5a] mb-8">Your Daily Streak</h1>
+  <div class="streak-page page-content">
+    <a href="/mood.html" class="back-btn" style="margin-bottom:2rem;">Back to Home</a>
 
-    <div class="bg-white rounded-3xl shadow-xl p-12">
-      <div id="streak-display" class="text-8xl font-light text-[#6b8c7a] mb-4"></div>
-      <p id="streak-text" class="text-2xl text-[#4a6b5a]"></p>
-    </div>
+    <span class="fire-emoji">🔥</span>
+    <div class="streak-big" id="streak-num">0</div>
+    <div class="streak-label">Day Streak</div>
+    <div class="streak-msg" id="streak-msg"></div>
 
-    <p class="mt-10 text-[#6b5c4f]">Keep going! Every day you check in makes a difference 🌱</p>
+    <a href="/mood.html" class="btn btn-primary btn-lg">
+      📸 Check in now
+    </a>
+
+    <p style="margin-top:1.5rem;color:var(--text-muted);font-size:0.88rem;">Every day you check in makes a difference 🌱</p>
   </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item active"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
 
   <script>
     function calculateStreak() {
       let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
       if (journal.length === 0) return 0;
-
       journal.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
-
       let streak = 1;
       let lastDate = new Date(journal[0].datetime.split(',')[0]);
-
       for (let i = 1; i < journal.length; i++) {
         let currentDate = new Date(journal[i].datetime.split(',')[0]);
         let diffDays = (lastDate - currentDate) / (1000 * 60 * 60 * 24);
@@ -47,10 +101,12 @@
     }
 
     const streak = calculateStreak();
-    document.getElementById('streak-display').innerHTML = `${streak} <span class="text-6xl">🔥</span> day streak`;
-    document.getElementById('streak-text').innerHTML = streak >= 7 
-      ? "Amazing consistency! You're doing great 🌟" 
-      : "You're building a beautiful habit. Keep it up!";
+    document.getElementById('streak-num').textContent = streak;
+    document.getElementById('streak-msg').textContent = streak >= 7
+      ? "Amazing consistency! You're on fire! 🌟"
+      : streak >= 3
+        ? "You're building a beautiful habit. Keep it up!"
+        : "Every journey starts with a single step. Keep going!";
   </script>
 </body>
 </html>

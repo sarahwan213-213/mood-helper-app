@@ -1,26 +1,25 @@
-node_modules
-
-# Python virtual environments
+# Python
 venv/
 venv-embedded/
 venv-embedded-x64/
+__pycache__/
+*.pyc
+*.pyo
 
-# Build and distribution artifacts
+# Node
+node_modules/
+node-website/node_modules/
+
+# Electron build output
 dist/
-*.dmg
-*.zip
-*.app/
 
-# Model checkpoints and datasets
-emotion_model/
-fer2013_4class/
+# Dataset (太大，唔上傳)
 fer2013_dataset/
-my_emotion_model/
-*.safetensors
-*.pt
-*.pth
-*.arrow
+fer2013_4class/
 
-# macOS files
+# Old model (只上傳新的 RAF-DB 模型)
+emotion_model/
+my_emotion_model_4class/
+
+# Mac
 .DS_Store
-

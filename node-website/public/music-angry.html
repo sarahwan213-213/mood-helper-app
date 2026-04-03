@@ -1,124 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relaxing Music for Angry • Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Music for Angry • Mood Helper</title>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
+    .mood-header { background: linear-gradient(135deg,#FF4D4D,#FF7043); padding:1.5rem 1.25rem 1.25rem; }
+    .track-play-btn { background: linear-gradient(135deg,#FF4D4D,#FF7043); color:#fff; }
+    .track-subtitle { color: #B91C1C; }
+    .progress-fill   { background: linear-gradient(90deg,#FF4D4D,#FF7043); }
+    .pause-btn { background: linear-gradient(135deg,#FF4D4D,#FF7043); color:#fff; border:none; flex:1; padding:0.85rem; border-radius:14px; font-weight:700; cursor:pointer; font-size:1rem; }
+    .stop-btn  { background:rgba(239,68,68,0.12); color:#DC2626; border:1.5px solid rgba(239,68,68,0.25); flex:1; padding:0.85rem; border-radius:14px; font-weight:700; cursor:pointer; font-size:1rem; }
   </style>
 </head>
-<body class="bg-[#f8f4f0] min-h-screen">
-  <div class="max-w-md mx-auto px-6 py-12">
-    <a href="/angry.html" class="inline-flex items-center gap-2 text-[#8c5a4a] mb-8">← Back to Angry</a>
-    <h1 class="text-4xl font-semibold text-[#8c5a4a] mb-2">Relaxing Music for Angry</h1>
-    <p class="text-[#6b5c4f]">Only one can play at a time</p>
+<body class="with-bottom-nav">
 
-    <div class="mt-10 space-y-6">
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 1</h3>
-          <p class="text-sm text-[#8c5a4a]">Powerful Rock • 6 minutes</p>
-          <p class="text-xs text-gray-500">Strong rock beat. Helps you safely release built-up anger and feel powerful again.</p>
+  <div class="mood-header">
+    <a href="/angry.html" class="back-btn" style="color:rgba(255,255,255,0.85);margin-bottom:0.75rem;display:inline-flex;">Back to Angry</a>
+    <h1 style="font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:0.2rem;">🎵 Music for Angry</h1>
+    <p style="color:rgba(255,255,255,0.8);font-size:0.88rem;">Only one track can play at a time</p>
+  </div>
+
+  <div class="page-content" style="padding:1.5rem 0 4rem;">
+    <div class="container-sm">
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+
+        <div class="track-card fade-up" id="card-0">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release01.mp3', 'Release 1', 0)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 1</div>
+            <div class="track-subtitle">Powerful Rock • 6 minutes</div>
+            <div class="track-desc">Strong rock beat. Helps you safely release built-up anger and feel powerful again.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release01.mp3', 'Release 1')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 2</h3>
-          <p class="text-sm text-[#8c5a4a]">Intense Drum • 7 minutes</p>
-          <p class="text-xs text-gray-500">Heavy drum track. Helps you let go of frustration through strong rhythm.</p>
+        <div class="track-card fade-up-1" id="card-1">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release02.mp3', 'Release 2', 1)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 2</div>
+            <div class="track-subtitle">Intense Drum • 7 minutes</div>
+            <div class="track-desc">Heavy drum track. Helps you let go of frustration through strong rhythm.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release02.mp3', 'Release 2')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 3</h3>
-          <p class="text-sm text-[#8c5a4a]">Aggressive Electronic • 5 minutes</p>
-          <p class="text-xs text-gray-500">Fast electronic beat. Helps you turn anger into focused energy.</p>
+        <div class="track-card fade-up-2" id="card-2">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release03.mp3', 'Release 3', 2)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 3</div>
+            <div class="track-subtitle">Aggressive Electronic • 5 minutes</div>
+            <div class="track-desc">Fast electronic beat. Helps you turn anger into focused energy.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release03.mp3', 'Release 3')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 4</h3>
-          <p class="text-sm text-[#8c5a4a]">Heavy Guitar Rock • 6 minutes</p>
-          <p class="text-xs text-gray-500">Powerful guitar sound. Helps you feel strong and in control again.</p>
+        <div class="track-card fade-up-3" id="card-3">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release04.mp3', 'Release 4', 3)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 4</div>
+            <div class="track-subtitle">Heavy Guitar Rock • 6 minutes</div>
+            <div class="track-desc">Powerful guitar sound. Helps you feel strong and in control again.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release04.mp3', 'Release 4')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 5</h3>
-          <p class="text-sm text-[#8c5a4a]">Fast Aggressive Beat • 7 minutes</p>
-          <p class="text-xs text-gray-500">High-energy beat. Helps you quickly burn off anger.</p>
+        <div class="track-card fade-up-4" id="card-4">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release05.mp3', 'Release 5', 4)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 5</div>
+            <div class="track-subtitle">Fast Aggressive Beat • 7 minutes</div>
+            <div class="track-desc">High-energy beat. Helps you quickly burn off anger.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release05.mp3', 'Release 5')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 6</h3>
-          <p class="text-sm text-[#8c5a4a]">Bold Rock Anthem • 6 minutes</p>
-          <p class="text-xs text-gray-500">Strong anthem. Helps you feel empowered after releasing anger.</p>
+        <div class="track-card fade-up-5" id="card-5">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release06.mp3', 'Release 6', 5)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 6</div>
+            <div class="track-subtitle">Bold Rock Anthem • 6 minutes</div>
+            <div class="track-desc">Strong anthem. Helps you feel empowered after releasing anger.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release06.mp3', 'Release 6')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 7</h3>
-          <p class="text-sm text-[#8c5a4a]">Intense Drum Track • 5 minutes</p>
-          <p class="text-xs text-gray-500">Pure drum power. Helps you release tension through rhythm.</p>
+        <div class="track-card fade-up" id="card-6">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release07.mp3', 'Release 7', 6)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 7</div>
+            <div class="track-subtitle">Intense Drum Track • 5 minutes</div>
+            <div class="track-desc">Pure drum power. Helps you release tension through rhythm.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release07.mp3', 'Release 7')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 8</h3>
-          <p class="text-sm text-[#8c5a4a]">Bold Electronic • 7 minutes</p>
-          <p class="text-xs text-gray-500">Powerful electronic. Helps you turn anger into motivation.</p>
+        <div class="track-card fade-up-1" id="card-7">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release08.mp3', 'Release 8', 7)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 8</div>
+            <div class="track-subtitle">Bold Electronic • 7 minutes</div>
+            <div class="track-desc">Powerful electronic. Helps you turn anger into motivation.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release08.mp3', 'Release 8')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
-      </div>
 
-      <div class="bg-white rounded-3xl p-6 shadow-md flex justify-between items-center">
-        <div>
-          <h3 class="font-semibold">Release 9</h3>
-          <p class="text-sm text-[#8c5a4a]">Strong Upbeat Rock • 6 minutes</p>
-          <p class="text-xs text-gray-500">Bold rock track. Helps you feel calm and strong again.</p>
+        <div class="track-card fade-up-2" id="card-8">
+          <button class="track-play-btn" onclick="playMusic(this, '/music/Release09.mp3', 'Release 9', 8)">▶</button>
+          <div class="track-info">
+            <div class="track-title">Release 9</div>
+            <div class="track-subtitle">Strong Upbeat Rock • 6 minutes</div>
+            <div class="track-desc">Bold rock track. Helps you feel calm and strong again.</div>
+          </div>
         </div>
-        <button onclick="playMusic(this, '/music/Release09.mp3', 'Release 9')" class="play-btn px-8 py-3 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Start</button>
+
       </div>
 
-    </div>
-
-    <div id="player-container" class="hidden mt-8 bg-white rounded-3xl p-6 shadow">
-      <div id="now-playing" class="text-center text-[#8c5a4a] font-medium mb-4"></div>
-      <div class="flex justify-between text-sm mb-2 text-gray-600">
-        <span id="current-time">0:00</span>
-        <span id="total-time">0:00</span>
-      </div>
-      <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
-        <div id="progress" class="h-2 bg-[#d4b8a8] w-0 transition-all"></div>
-      </div>
-      <div class="flex gap-4">
-        <button onclick="togglePause()" id="pause-btn" class="flex-1 py-4 bg-[#d4b8a8] hover:bg-[#c4a898] text-white rounded-2xl font-medium">Pause</button>
-        <button onclick="stopMusic()" class="flex-1 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-medium">Stop</button>
+      <div id="player-container" class="player-bar hidden" style="margin-top:1.5rem;">
+        <div id="now-playing" style="font-weight:700;color:var(--text);margin-bottom:0.5rem;font-size:0.95rem;"></div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:0.75rem;">
+          <span id="current-time">0:00</span>
+          <span id="total-time">0:00</span>
+        </div>
+        <div style="display:flex;gap:0.75rem;">
+          <button onclick="togglePause()" id="pause-btn" class="pause-btn">⏸ Pause</button>
+          <button onclick="stopMusic()" class="stop-btn">⏹ Stop</button>
+        </div>
       </div>
     </div>
   </div>
 
   <audio id="player" class="hidden"></audio>
 
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
+
   <script>
     let currentBtn = null;
+    let currentCardIndex = null;
     let isPaused = false;
     const player = document.getElementById('player');
     const playerContainer = document.getElementById('player-container');
@@ -134,26 +158,23 @@
       return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     }
 
-    function playMusic(btn, src, title) {
+    function playMusic(btn, src, title, cardIndex) {
       if (currentBtn && currentBtn !== btn) {
-        currentBtn.textContent = "Start";
-        currentBtn.classList.remove('bg-red-600');
+        currentBtn.textContent = "▶";
+        if (currentCardIndex !== null) document.getElementById(`card-${currentCardIndex}`).classList.remove('playing');
       }
       player.pause();
       player.src = src;
       player.currentTime = 0;
       player.play();
-
-      btn.textContent = "Playing";
-      btn.classList.add('bg-red-600');
-
+      btn.textContent = "⏸";
+      document.getElementById(`card-${cardIndex}`).classList.add('playing');
       playerContainer.classList.remove('hidden');
       nowPlaying.innerHTML = `🎧 ${title}`;
-
       currentBtn = btn;
+      currentCardIndex = cardIndex;
       isPaused = false;
-      pauseBtn.textContent = "Pause";
-
+      pauseBtn.textContent = "⏸ Pause";
       player.ontimeupdate = () => {
         if (player.duration) {
           const progress = (player.currentTime / player.duration) * 100;
@@ -169,11 +190,13 @@
       if (!player.src) return;
       if (isPaused) {
         player.play();
-        pauseBtn.textContent = "Pause";
+        pauseBtn.textContent = "⏸ Pause";
+        if (currentBtn) currentBtn.textContent = "⏸";
         isPaused = false;
       } else {
         player.pause();
-        pauseBtn.textContent = "Resume";
+        pauseBtn.textContent = "▶ Resume";
+        if (currentBtn) currentBtn.textContent = "▶";
         isPaused = true;
       }
     }
@@ -185,12 +208,11 @@
     }
 
     function resetPlayer() {
-      if (currentBtn) {
-        currentBtn.textContent = "Start";
-        currentBtn.classList.remove('bg-red-600');
-      }
+      if (currentBtn) currentBtn.textContent = "▶";
+      if (currentCardIndex !== null) document.getElementById(`card-${currentCardIndex}`).classList.remove('playing');
       playerContainer.classList.add('hidden');
       currentBtn = null;
+      currentCardIndex = null;
       isPaused = false;
     }
 

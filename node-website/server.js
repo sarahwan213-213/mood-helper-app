@@ -4,24 +4,21 @@ const path = require('path');
 const app = express();
 const port = 3000;
 
-// Serve all static files from public folder
+console.log("Starting server...");
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/mood.html', (req, res) => {
+  console.log("Home page requested");
   res.sendFile(path.join(__dirname, 'public', 'mood.html'));
 });
 
-// Fallback - send index.html for any other route
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('/mood.html', (req, res) => {
+  console.log("Mood page requested");
+  res.sendFile(path.join(__dirname, 'public', 'mood.html'));
 });
 
 app.listen(port, () => {
-  console.log(`✅ Your website is running at http://localhost:${port}`);
-  console.log(`   Mood detection page → http://localhost:${port}/mood.html`);
+  console.log(`✅ SUCCESS! Website is running at http://localhost:${port}`);
+  console.log(`   Open your browser and go to: http://localhost:3000`);
 });

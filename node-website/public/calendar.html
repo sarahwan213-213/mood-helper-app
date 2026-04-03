@@ -1,56 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mood History Calendar • Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Mood Calendar • Mood Helper</title>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8f4f0; }
-    .day { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 9999px; font-size: 0.9rem; }
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.4rem;
+      text-align: center;
+    }
+    .cal-header-cell {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 0.5rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .cal-day {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      transition: transform 0.15s;
+      cursor: default;
+    }
+    .cal-day.has-entry {
+      color: #fff;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    .cal-day.has-entry:hover { transform: scale(1.12); }
+    .legend { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-soft); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
   </style>
 </head>
-<body class="bg-[#f8f4f0] min-h-screen">
+<body class="with-bottom-nav">
 
-  <div class="max-w-4xl mx-auto px-6 py-12">
-    <a href="/mood.html" class="inline-flex items-center gap-2 text-[#6b8c7a] hover:text-[#5a7a68] mb-8">
-      ← Back to Home
-    </a>
-    <h1 class="text-4xl font-semibold text-[#5d4a3f] mb-2">Mood History Calendar</h1>
-    <p class="text-[#6b5c4f] mb-10">March 2026 • Click any day to see your note</p>
-
-    <div id="calendar" class="bg-white rounded-3xl shadow-xl p-8 grid grid-cols-7 gap-2 text-center"></div>
+  <!-- Header -->
+  <div class="page-header">
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <a href="/mood.html" class="back-btn">Back</a>
+      <h1 style="font-size:1.2rem;font-weight:800;color:var(--text);">Mood Calendar</h1>
+    </div>
   </div>
 
+  <div class="page-content" style="padding:1.5rem 0 4rem;">
+    <div class="container">
+
+      <!-- Month Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;" class="fade-up">
+        <button onclick="changeMonth(-1)" class="btn btn-surface" style="border-radius:12px;padding:0.5rem 1rem;">←</button>
+        <h2 style="font-size:1.2rem;font-weight:800;color:var(--text);" id="month-title"></h2>
+        <button onclick="changeMonth(1)" class="btn btn-surface" style="border-radius:12px;padding:0.5rem 1rem;">→</button>
+      </div>
+
+      <!-- Calendar -->
+      <div class="card fade-up-1" style="padding:1.25rem;">
+        <div class="cal-grid" id="calendar"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="card fade-up-2" style="margin-top:1.25rem;">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#FF4D4D;"></div>Angry</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6366F1;"></div>Sad</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#F59E0B;"></div>Happy</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#10B981;"></div>Calm</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--border);"></div>No entry</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
+
   <script>
-    const moodColor = { Angry: '#d4b8a8', Sad: '#b8c8d4', Happy: '#f0d4b0', Calm: '#b0c8b8' };
+    const moodColor = { Angry: '#FF4D4D', Sad: '#6366F1', Happy: '#F59E0B', Calm: '#10B981' };
     const journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
 
-    function renderCalendar() {
-      const container = document.getElementById('calendar');
-      container.innerHTML = `
-        <div class="text-[#6b5c4f] font-medium">Sun</div><div class="text-[#6b5c4f] font-medium">Mon</div>
-        <div class="text-[#6b5c4f] font-medium">Tue</div><div class="text-[#6b5c4f] font-medium">Wed</div>
-        <div class="text-[#6b5c4f] font-medium">Thu</div><div class="text-[#6b5c4f] font-medium">Fri</div>
-        <div class="text-[#6b5c4f] font-medium">Sat</div>
-      `;
+    // Parse entry date — supports both:
+    //   datetime: "04/04/2026, 09:30:00"  (en-GB, saved by mood.html)
+    //   date:     "2026-04-04"            (ISO, legacy entries)
+    function getEntryDateKey(entry) {
+      if (entry.datetime) {
+        const datePart = entry.datetime.split(',')[0].trim(); // "04/04/2026"
+        const parts = datePart.split('/');
+        if (parts.length === 3) {
+          const [dd, mm, yyyy] = parts;
+          return `${yyyy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
+        }
+      }
+      if (entry.date) return entry.date;
+      return null;
+    }
 
-      // Simple March 2026 demo (you can change the month later)
-      for (let i = 1; i <= 31; i++) {
-        const dateStr = `2026-03-${i.toString().padStart(2, '0')}`;
-        const entry = journal.find(e => e.date === dateStr);
-        const color = entry ? moodColor[entry.mood] : '#f0ede5';
+    let viewDate = new Date();
+
+    function changeMonth(dir) {
+      viewDate.setMonth(viewDate.getMonth() + dir);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const firstDay = new Date(year, month, 1).getDay();
+      const monthName = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      document.getElementById('month-title').textContent = monthName;
+
+      const container = document.getElementById('calendar');
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      container.innerHTML = days.map(d => `<div class="cal-header-cell">${d}</div>`).join('');
+
+      // Empty cells for offset
+      for (let i = 0; i < firstDay; i++) {
+        container.innerHTML += '<div></div>';
+      }
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        const entry = journal.find(e => getEntryDateKey(e) === dateStr);
+        const color = entry ? moodColor[entry.mood] : 'transparent';
+        const hasEntry = !!entry;
         const div = document.createElement('div');
-        div.className = `day`;
-        div.style.backgroundColor = color;
-        div.style.color = entry ? '#fff' : '#6b5c4f';
+        div.className = 'cal-day' + (hasEntry ? ' has-entry' : '');
+        div.style.background = hasEntry ? color : 'var(--surface2)';
+        div.style.color = hasEntry ? '#fff' : 'var(--text-muted)';
         div.textContent = i;
-        if (entry) {
-          div.title = `${entry.mood} - ${entry.note || ''}`;
-          div.onclick = () => alert(`Date: ${dateStr}\nMood: ${entry.mood}\nNote: ${entry.note || 'No note'}`);
+        if (hasEntry) {
+          div.title = `${entry.mood} — ${entry.note || 'No note'}`;
+          div.onclick = () => showDayDetail(dateStr, entry.mood, entry.note);
         }
         container.appendChild(div);
       }
+    }
+
+    function showDayDetail(date, mood, note) {
+      let panel = document.getElementById('_day-panel');
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = '_day-panel';
+        panel.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:1.1rem 1.4rem;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.15);min-width:220px;max-width:90vw;font-family:Nunito,sans-serif;';
+        document.body.appendChild(panel);
+        panel.addEventListener('click', () => { panel.style.display = 'none'; });
+      }
+      const emojiMap = { Angry:'😠', Sad:'😢', Happy:'😄', Calm:'😌' };
+      panel.innerHTML = `<div style="font-size:0.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9b8bc0;margin-bottom:.4rem;">${date}</div>
+        <div style="font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:.35rem;">${emojiMap[mood]||''} ${mood}</div>
+        <div style="font-size:0.85rem;color:var(--text-muted);">${note||'No note'}</div>
+        <div style="font-size:0.72rem;color:#b0a8c0;margin-top:.6rem;text-align:right;">Tap to close</div>`;
+      panel.style.display = 'block';
+      clearTimeout(panel._t); panel._t = setTimeout(() => { panel.style.display = 'none'; }, 4000);
     }
 
     renderCalendar();

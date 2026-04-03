@@ -1,49 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy - Mood Helper</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Happy • Mood Helper</title>
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
+    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+  </script>
   <style>
-    body {
-      background: linear-gradient(135deg, #fdf4e8 0%, #f8e4c8 50%, #f5d9b0 100%);
+    .mood-hero {
+      background: linear-gradient(135deg, #FCD34D 0%, #F59E0B 40%, #F97316 100%);
+      padding: 72px 1.25rem 48px;
+      text-align: center;
       position: relative;
       overflow: hidden;
     }
-    .illustration { position: absolute; opacity: 0.18; pointer-events: none; z-index: 0; animation: float 25s infinite linear; }
+    .mood-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.20) 0%, transparent 60%);
+    }
+    .mood-hero-img {
+      width: 110px; height: 110px; object-fit: contain;
+      display: block; margin: 0 auto 1.1rem; position: relative;
+      animation: float 3.5s ease-in-out infinite;
+      filter: drop-shadow(0 6px 18px rgba(245,158,11,0.4));
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+    .mood-hero h1 { font-size: 2.2rem; font-weight: 900; color: #fff; margin-bottom: 0.5rem; position: relative; letter-spacing: -0.02em; }
+    .mood-hero p  { font-size: 1.05rem; color: rgba(255,255,255,0.92); position: relative; }
+    .content-section { padding: 2rem 0 4rem; }
+    .mood-action-btn {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1rem 1.25rem; border-radius: 18px; border: none;
+      background: linear-gradient(135deg, #FFFBEB, #FEF3C7);
+      color: #92400E; font-weight: 800; font-size: 1rem;
+      cursor: pointer; text-align: left; font-family: inherit;
+      width: 100%;
+      box-shadow: 0 2px 10px rgba(80,160,210,0.12);
+      transition: transform 0.18s cubic-bezier(0.22,1,0.36,1), box-shadow 0.18s;
+    }
+    .mood-action-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(80,160,210,0.22); }
+    .mood-action-btn span { font-size: 1.3rem; }
+    @keyframes happySparkle {
+      0%, 100% { transform: scale(0) rotate(0deg); opacity: 0; }
+      40%       { transform: scale(1.2) rotate(180deg); opacity: 1; }
+      70%       { transform: scale(0.8) rotate(270deg); opacity: 0.6; }
+    }
+    .hero-star {
+      position: absolute;
+      font-size: 1.1rem;
+      animation: happySparkle 2.5s ease-in-out infinite;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-star-1 { top: 18%; left: 8%;  animation-delay: 0s; }
+    .hero-star-2 { top: 12%; right: 10%; animation-delay: 0.8s; }
+    .hero-star-3 { top: 55%; left: 5%;  animation-delay: 1.4s; }
+    .hero-star-4 { top: 65%; right: 8%; animation-delay: 0.4s; }
+    .hero-star-5 { top: 35%; right: 22%; animation-delay: 1.9s; }
+    .affirmation-card {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 16px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      backdrop-filter: blur(4px);
+    }
+    .affirmation-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .affirmation-text {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.55;
+    }
   </style>
 </head>
-<body class="min-h-screen">
+<body class="with-bottom-nav">
 
-  <div class="illustration text-7xl" style="top: 18%; left: 12%;">🌼</div>
-  <div class="illustration text-6xl" style="top: 50%; right: 18%;">🌸</div>
+  <div class="mood-hero">
+    <div class="hero-star hero-star-1">✦</div>
+    <div class="hero-star hero-star-2">✨</div>
+    <div class="hero-star hero-star-3">✦</div>
+    <div class="hero-star hero-star-4">⭐</div>
+    <div class="hero-star hero-star-5">✨</div>
+    <img src="/images/happy.png" class="mood-hero-img" alt="Happy">
+    <h1>You're feeling Happy!</h1>
+    <p>Let's celebrate and keep this beautiful vibe going ✨</p>
+  </div>
 
-  <div class="max-w-md mx-auto pt-12 px-6 relative z-10">
-    <h1 class="text-4xl font-bold text-[#8c6f3a] text-center">You're feeling Happy! 🌟</h1>
-    <p class="text-center text-[#b89f6a] mt-3">Let's cherish and grow this beautiful feeling</p>
+  <div class="content-section">
+    <div class="container-sm">
+      <a href="/mood.html" class="back-btn fade-up" style="margin-bottom:1.5rem;display:inline-flex;">Back to Home</a>
 
-    <div class="mt-10 space-y-4">
-      <button onclick="goTo('/meditation-happy.html')" class="w-full py-6 bg-[#f5d9b0] hover:bg-[#e8c89f] text-white font-medium rounded-3xl text-lg shadow">🧘 Meditation for Happy</button>
-      <button onclick="goTo('/music-happy.html')" class="w-full py-6 bg-[#f5d9b0] hover:bg-[#e8c89f] text-white font-medium rounded-3xl text-lg shadow">🎵 Play Music for Happy</button>
-      <button onclick="goTo('/workout-happy.html')" class="w-full py-6 bg-[#f5d9b0] hover:bg-[#e8c89f] text-white font-medium rounded-3xl text-lg shadow">🏃 Workout Video for Happy</button>
-    </div>
+      <div class="affirmation-card fade-up">
+        <span class="affirmation-icon">🌟</span>
+        <p class="affirmation-text">This happiness is yours — you've earned it. Let's make the most of this beautiful feeling!</p>
+      </div>
 
-    <div class="mt-12 bg-white rounded-3xl shadow p-6">
-      <p class="text-center text-[#5d4a3f] font-medium mb-4">Would you like to save this moment?</p>
-      <input id="note-input" type="text" placeholder="e.g. had a good day with friends" 
-             class="w-full px-5 py-4 bg-[#fdf4e8] border border-[#f5d9b0] rounded-2xl focus:outline-none text-gray-700 mb-4">
-      <button onclick="saveToJournal()" class="w-full py-4 bg-[#d4b89e] hover:bg-[#c9a98f] text-white font-medium rounded-2xl transition">
-        💾 Save to Mood Journal
-      </button>
-    </div>
+      <div style="display:flex;flex-direction:column;gap:0.85rem;margin-bottom:2rem;" class="fade-up-1">
+        <button onclick="location.href='/meditation-happy.html'" class="mood-action-btn">
+          <span>🧘</span> Meditation for Happy
+        </button>
+        <button onclick="location.href='/music-happy.html'" class="mood-action-btn">
+          <span>🎵</span> Music for Happy
+        </button>
+        <button onclick="location.href='/workout-happy.html'" class="mood-action-btn">
+          <span>🏃</span> Workout for Happy
+        </button>
+      </div>
 
-    <div class="text-center mt-12">
-      <a href="/mood.html" class="inline-flex items-center gap-2 text-[#b89f6a] hover:text-[#8c6f3a] font-medium">
-        ← Back to Mood Detection
-      </a>
+      <div class="card fade-up-2">
+        <h3 style="font-weight:800;font-size:1.1rem;margin-bottom:0.3rem;">Save this moment 📝</h3>
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;">Capture this happy feeling!</p>
+        <input id="note-input" type="text" placeholder="e.g. had a good day with friends..."
+               class="input" style="margin-bottom:1rem;">
+        <button onclick="saveToJournal()" class="btn btn-block btn-lg" style="border-radius:16px;background:linear-gradient(135deg,#F59E0B,#F97316);color:#fff;border:none;font-weight:800;">
+          💾 Save to Journal
+        </button>
+      </div>
     </div>
   </div>
+
+  <nav class="bottom-nav">
+    <a href="/mood.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html" class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/streak.html" class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+  </nav>
 
   <script>
     function goTo(page) { window.location.href = page; }
@@ -54,8 +147,19 @@
       let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
       journal.unshift(entry);
       localStorage.setItem('moodJournal', JSON.stringify(journal));
-      alert("✅ Saved to Mood Journal!");
+      showToast("✅ Saved to Journal!");
       document.getElementById('note-input').value = "";
+    }
+    function showToast(msg) {
+      let t = document.getElementById('_toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = '_toast';
+        t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2d4a3e;color:#fff;padding:0.7rem 1.4rem;border-radius:99px;font-weight:700;font-size:0.9rem;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg; t.style.opacity = '1';
+      clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity = '0'; }, 2500);
     }
   </script>
 </body>

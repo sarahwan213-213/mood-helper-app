@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Understanding Your Emotions • Mood Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared.css">
+  <script>
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('darkMode', t === 'dark' ? 'true' : 'false');
+    }
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      document.getElementById('theme-icon').textContent  = next === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = next === 'dark' ? 'Light' : 'Dark';
+    }
+    (function () {
+      var s = localStorage.getItem('darkMode');
+      var isDark = s !== null ? s === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    })();
+  </script>
+  <style>
+    /* ── Base overrides for soft blue / sage green palette ─────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, button, input, textarea {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+    }
+
+    /* ── Page fade-in ────────────────────────────────────────── */
+    @keyframes pageLoad { from { opacity: 0; } to { opacity: 1; } }
+    body { animation: pageLoad 0.5s ease both; }
+
+    /* ── Top nav (sage green palette) ───────────────────────── */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.25rem; height: 60px;
+      background: rgba(248, 244, 240, 0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(107,140,122,0.15);
+    }
+    [data-theme="dark"] .top-nav {
+      background: rgba(13, 8, 32, 0.92); border-color: rgba(167,139,250,0.15);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 1.05rem; font-weight: 900; color: #2d4a3e; text-decoration: none;
+    }
+    [data-theme="dark"] .nav-logo { color: #c8e6d0; }
+    .nav-links {
+      display: none; gap: 1.75rem; font-size: 0.88rem; font-weight: 700;
+    }
+    @media (min-width: 768px) { .nav-links { display: flex; } }
+    .nav-links a { color: #5a7268; text-decoration: none; transition: color 0.18s; }
+    [data-theme="dark"] .nav-links a { color: #9bbfad; }
+    .nav-links a:hover { color: #6b8c7a; }
+    .dark-toggle {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 99px; border: none;
+      background: rgba(107,140,122,0.1); color: #2d4a3e;
+      font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; min-height: 36px; transition: background 0.2s;
+    }
+    [data-theme="dark"] .dark-toggle { background: rgba(167,139,250,0.15); color: #c8e6d0; }
+    .dark-toggle:hover { background: rgba(107,140,122,0.2); }
+
+    /* ── Body padding ────────────────────────────────────────── */
+    body { padding-top: 60px; padding-bottom: 72px; background: #f5f9fc; }
+    [data-theme="dark"] body { background: #0e1a24; }
+    @media (min-width: 768px) { body { padding-bottom: 0; } }
+
+    /* ── Bottom nav ──────────────────────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: stretch;
+      background: rgba(248, 244, 240, 0.97); backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(107,140,122,0.15); height: 64px;
+    }
+    @media (min-width: 768px) { .bottom-nav { display: none; } }
+    [data-theme="dark"] .bottom-nav {
+      background: rgba(13, 8, 32, 0.97); border-color: rgba(167,139,250,0.15);
+    }
+    .bottom-nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      text-decoration: none; font-size: 0.65rem; font-weight: 700;
+      color: #9b8bc0; transition: color 0.18s;
+    }
+    .bottom-nav-item:hover, .bottom-nav-item.active { color: #6b8c7a; }
+    [data-theme="dark"] .bottom-nav-item:hover,
+    [data-theme="dark"] .bottom-nav-item.active { color: #a8d5b8; }
+    .nav-icon { font-size: 1.35rem; }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .page-hero {
+      background: linear-gradient(145deg, #daeef8 0%, #edf7fc 50%, #d4edf5 100%);
+      padding: 3.5rem 1.25rem 3rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(107,140,122,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .page-hero {
+      background: linear-gradient(145deg, #0d2233 0%, #0f1e2a 50%, #0b1c28 100%);
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 20% 60%, rgba(165,214,247,0.45) 0%, transparent 55%),
+                  radial-gradient(circle at 80% 30%, rgba(129,196,232,0.35) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-block; font-size: 0.78rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #3a7fa0; background: rgba(58,127,160,0.1);
+      border: 1px solid rgba(58,127,160,0.22);
+      padding: 0.3rem 0.9rem; border-radius: 99px; margin-bottom: 1rem;
+    }
+    [data-theme="dark"] .hero-eyebrow { color: #7ecaed; background: rgba(126,202,237,0.1); border-color: rgba(126,202,237,0.2); }
+    .hero-title {
+      font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
+      line-height: 1.15; letter-spacing: -0.025em;
+      color: #1a3d50; margin-bottom: 0.85rem; position: relative;
+    }
+    [data-theme="dark"] .hero-title { color: #c8e9f5; }
+    .hero-intro {
+      font-size: 1rem; color: #3d6e84; max-width: 520px;
+      margin: 0 auto; line-height: 1.7; font-weight: 600; position: relative;
+    }
+    [data-theme="dark"] .hero-intro { color: #86bdd4; }
+
+    /* ── Main content layout ─────────────────────────────────── */
+    .content-wrap {
+      max-width: 860px; margin: 0 auto; padding: 2.5rem 1.25rem 3rem;
+    }
+
+    /* ── Section label ───────────────────────────────────────── */
+    .section-label {
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #6b8c7a;
+      text-align: center; margin-bottom: 1.5rem;
+    }
+    [data-theme="dark"] .section-label { color: #7ab89a; }
+
+    /* ── Emotion cards ───────────────────────────────────────── */
+    .emotion-cards { display: flex; flex-direction: column; gap: 1.75rem; }
+
+    .emo-card {
+      background: #fff;
+      border-radius: 28px;
+      border: 1.5px solid rgba(107,140,122,0.14);
+      box-shadow: 0 4px 24px rgba(58,127,160,0.09);
+      overflow: hidden;
+      transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), box-shadow 0.25s;
+    }
+    .emo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 36px rgba(58,127,160,0.16);
+    }
+    [data-theme="dark"] .emo-card {
+      background: #0f2230; border-color: rgba(126,202,237,0.14);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    }
+
+    /* Card header strip */
+    .emo-header {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.4rem 1.6rem 1.2rem;
+    }
+    .emo-emoji-wrap {
+      width: 64px; height: 64px; border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; flex-shrink: 0; overflow: hidden;
+    }
+    .emo-emoji-wrap img {
+      width: 48px; height: 48px; object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
+    }
+    .emo-title-block { flex: 1; }
+    .emo-name {
+      font-size: 1.4rem; font-weight: 900; line-height: 1.15;
+      letter-spacing: -0.02em; margin-bottom: 0.2rem;
+    }
+    .emo-tagline {
+      font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
+    }
+
+    /* Angry */
+    .emo-card-angry .emo-header { border-bottom: 2px solid rgba(129,196,232,0.3); }
+    .emo-card-angry .emo-emoji-wrap { background: linear-gradient(135deg, #cae8f7, #a5d6f7); }
+    .emo-card-angry .emo-name      { color: #1b5e7b; }
+    .emo-card-angry .emo-tagline   { color: #5aaace; }
+    [data-theme="dark"] .emo-card-angry .emo-name    { color: #a5d6f7; }
+    [data-theme="dark"] .emo-card-angry .emo-tagline { color: #6ab8dc; }
+
+    /* Sad */
+    .emo-card-sad .emo-header { border-bottom: 2px solid rgba(150,200,230,0.3); }
+    .emo-card-sad .emo-emoji-wrap { background: linear-gradient(135deg, #d5eef8, #b8dff2); }
+    .emo-card-sad .emo-name      { color: #1a4f6b; }
+    .emo-card-sad .emo-tagline   { color: #4a9abf; }
+    [data-theme="dark"] .emo-card-sad .emo-name    { color: #b8dff2; }
+    [data-theme="dark"] .emo-card-sad .emo-tagline { color: #5aaace; }
+
+    /* Happy */
+    .emo-card-happy .emo-header { border-bottom: 2px solid rgba(107,196,220,0.3); }
+    .emo-card-happy .emo-emoji-wrap { background: linear-gradient(135deg, #d0eefa, #b0dff5); }
+    .emo-card-happy .emo-name      { color: #1a5570; }
+    .emo-card-happy .emo-tagline   { color: #3d9ac0; }
+    [data-theme="dark"] .emo-card-happy .emo-name    { color: #b0dff5; }
+    [data-theme="dark"] .emo-card-happy .emo-tagline { color: #4aaccf; }
+
+    /* Calm */
+    .emo-card-calm .emo-header { border-bottom: 2px solid rgba(90,186,214,0.3); }
+    .emo-card-calm .emo-emoji-wrap { background: linear-gradient(135deg, #c9eaf7, #a0d5ef); }
+    .emo-card-calm .emo-name      { color: #1a4a62; }
+    .emo-card-calm .emo-tagline   { color: #2e8fb5; }
+    [data-theme="dark"] .emo-card-calm .emo-name    { color: #a0d5ef; }
+    [data-theme="dark"] .emo-card-calm .emo-tagline { color: #42a8ce; }
+
+    /* Card body */
+    .emo-body { padding: 0 1.6rem 1.5rem; }
+
+    .emo-section-title {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #6b8c7a; margin-bottom: 0.45rem;
+      margin-top: 1.1rem;
+    }
+    [data-theme="dark"] .emo-section-title { color: #7ab89a; }
+
+    .emo-definition {
+      font-size: 0.95rem; line-height: 1.7; color: #2e4a5c; font-weight: 600;
+      background: rgba(165,214,247,0.12); border-left: 3px solid #81c4e8;
+      padding: 0.75rem 1rem; border-radius: 0 12px 12px 0;
+    }
+    [data-theme="dark"] .emo-definition { color: #a8d8ed; background: rgba(129,196,232,0.07); border-color: #4a9abf; }
+
+    .trigger-list {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+    }
+    .trigger-list li {
+      font-size: 0.82rem; font-weight: 700; color: #2d5a72;
+      background: rgba(165,214,247,0.22); border: 1px solid rgba(129,196,232,0.3);
+      border-radius: 99px; padding: 0.3rem 0.85rem;
+    }
+    [data-theme="dark"] .trigger-list li {
+      color: #8fcfe6; background: rgba(129,196,232,0.1); border-color: rgba(129,196,232,0.2);
+    }
+
+    .tip-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+    .tip-list li {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      font-size: 0.92rem; line-height: 1.6; color: #2e4a5c; font-weight: 600;
+    }
+    [data-theme="dark"] .tip-list li { color: #a0cee0; }
+    .tip-icon {
+      width: 28px; height: 28px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; margin-top: 0.1rem;
+      background: rgba(165,214,247,0.28); border: 1px solid rgba(129,196,232,0.3);
+    }
+    [data-theme="dark"] .tip-icon { background: rgba(129,196,232,0.1); border-color: rgba(129,196,232,0.2); }
+
+    /* Citation strip */
+    .emo-citation {
+      margin-top: 1.25rem;
+      padding: 0.65rem 1rem;
+      background: rgba(107,140,122,0.07);
+      border-radius: 12px;
+      font-size: 0.75rem; font-weight: 700; color: #5a7268;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    [data-theme="dark"] .emo-citation { background: rgba(107,140,122,0.12); color: #7ab89a; }
+
+    /* ── Myth vs Fact section ────────────────────────────────── */
+    .myth-section {
+      background: #fff;
+      border-top: 1px solid rgba(107,140,122,0.12);
+      padding: 3rem 0 3rem;
+    }
+    [data-theme="dark"] .myth-section {
+      background: #0c1c28; border-color: rgba(126,202,237,0.1);
+    }
+    .myth-heading {
+      font-size: clamp(1.35rem, 3vw, 1.9rem); font-weight: 900;
+      color: #1a3d50; text-align: center; margin: 0 0 0.5rem; letter-spacing: -0.02em;
+    }
+    [data-theme="dark"] .myth-heading { color: #c8e9f5; }
+    .myth-subtext {
+      text-align: center; font-size: 0.9rem; color: #3d6e84; line-height: 1.7;
+      font-weight: 600; max-width: 520px; margin: 0 auto 2rem;
+    }
+    [data-theme="dark"] .myth-subtext { color: #7ab5cb; }
+    .myth-grid {
+      display: grid; gap: 1.25rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 680px) { .myth-grid { grid-template-columns: 1fr 1fr; } }
+    .myth-card {
+      border-radius: 20px; overflow: hidden;
+      border: 1.5px solid rgba(129,196,232,0.2);
+      box-shadow: 0 4px 18px rgba(58,127,160,0.07);
+      background: #f8fdff;
+      transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s;
+    }
+    .myth-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(58,127,160,0.14);
+    }
+    [data-theme="dark"] .myth-card {
+      background: #0f2230; border-color: rgba(126,202,237,0.15);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.3);
+    }
+    .myth-row { padding: 1.1rem 1.2rem; }
+    .myth-badge {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.07em;
+      text-transform: uppercase; border-radius: 99px;
+      padding: 0.25rem 0.8rem; margin-bottom: 0.6rem;
+    }
+    .myth-badge-myth {
+      background: rgba(239,100,100,0.1); color: #b93e3e;
+      border: 1px solid rgba(239,100,100,0.22);
+    }
+    [data-theme="dark"] .myth-badge-myth { color: #f08080; background: rgba(239,100,100,0.08); border-color: rgba(239,100,100,0.18); }
+    .myth-badge-fact {
+      background: rgba(80,185,130,0.12); color: #27734e;
+      border: 1px solid rgba(80,185,130,0.25);
+    }
+    [data-theme="dark"] .myth-badge-fact { color: #6fcfa0; background: rgba(80,185,130,0.08); border-color: rgba(80,185,130,0.2); }
+    .myth-text {
+      font-size: 0.88rem; line-height: 1.65; color: #2e4a5c; font-weight: 600; margin: 0;
+    }
+    [data-theme="dark"] .myth-text { color: #a0cee0; }
+    .myth-divider { height: 1px; background: rgba(129,196,232,0.18); }
+    [data-theme="dark"] .myth-divider { background: rgba(126,202,237,0.1); }
+    .myth-credit {
+      text-align: center; font-size: 0.76rem; color: #7a9aab; font-weight: 600;
+      margin-top: 1.75rem;
+    }
+    [data-theme="dark"] .myth-credit { color: #4d7a8a; }
+
+    /* ── Sources section ─────────────────────────────────────── */
+    .sources-section {
+      background: #fff;
+      border-top: 1px solid rgba(107,140,122,0.14);
+      padding: 2.5rem 1.25rem;
+    }
+    [data-theme="dark"] .sources-section { background: #0f2230; border-color: rgba(126,202,237,0.12); }
+    .sources-inner { max-width: 860px; margin: 0 auto; }
+    .sources-title {
+      font-size: 1.1rem; font-weight: 900; color: #1a3d50; margin-bottom: 1.1rem;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    [data-theme="dark"] .sources-title { color: #c8e9f5; }
+    .source-list {
+      list-style: none; padding: 0; margin: 0;
+      display: flex; flex-direction: column; gap: 0.65rem;
+    }
+    .source-list li {
+      font-size: 0.83rem; line-height: 1.65; color: #3d6e84; font-weight: 600;
+      padding-left: 1.1rem; position: relative;
+    }
+    .source-list li::before {
+      content: "–"; position: absolute; left: 0; color: #81c4e8; font-weight: 900;
+    }
+    [data-theme="dark"] .source-list li { color: #7ab5cb; }
+
+    /* ── Disclaimer box ──────────────────────────────────────── */
+    .disclaimer {
+      max-width: 860px; margin: 0 auto 0;
+      padding: 1rem 1.25rem 2rem;
+      font-size: 0.78rem; color: #7a9aab; line-height: 1.65;
+      font-weight: 600; text-align: center;
+    }
+    [data-theme="dark"] .disclaimer { color: #4d7a8a; }
+
+    /* ── Responsive: two-column grid on wide screens ─────────── */
+    @media (min-width: 720px) {
+      .emotion-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top Nav ──────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <a href="/mood.html" class="nav-logo">
+      <span>🌿</span><span>Mood Helper</span>
+    </a>
+    <div class="nav-links">
+      <a href="/mood.html">Home</a>
+      <a href="/how-to-start.html">How to Start</a>
+      <a href="/journal.html">Journal</a>
+      <a href="/dashboard.html">Stats</a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ─────────────────────────────────────────────────── -->
+  <header class="page-hero">
+    <span class="hero-eyebrow">Educational Resource</span>
+    <h1 class="hero-title">Understanding Your Emotions</h1>
+    <p class="hero-intro">
+      Emotions are normal, meaningful signals from your body and mind.
+      Understanding them helps you respond with awareness and care —
+      rather than react on impulse.
+    </p>
+  </header>
+
+  <!-- ── Emotion Cards ────────────────────────────────────────── -->
+  <main class="content-wrap">
+    <p class="section-label">Four core emotional states</p>
+
+    <div class="emotion-cards">
+
+      <!-- ── ANGRY ──────────────────────────────────────────── -->
+      <article class="emo-card emo-card-angry">
+        <div class="emo-header">
+          <div class="emo-emoji-wrap"><img src="/images/angry.png" alt="Angry"></div>
+          <div class="emo-title-block">
+            <div class="emo-name">Anger</div>
+            <div class="emo-tagline">A signal of injustice or threat</div>
+          </div>
+        </div>
+        <div class="emo-body">
+
+          <div class="emo-section-title">What it is</div>
+          <p class="emo-definition">
+            Anger is a natural, universal emotional response to a perceived threat,
+            injustice, or frustration. It is not inherently harmful — it alerts you
+            that something feels wrong and prepares you to respond. The problem arises
+            only when it is expressed in harmful ways.
+          </p>
+
+          <div class="emo-section-title">Common triggers</div>
+          <ul class="trigger-list">
+            <li>Feeling treated unfairly</li>
+            <li>Unmet expectations</li>
+            <li>Feeling disrespected</li>
+            <li>Perceived threats</li>
+            <li>Powerlessness or frustration</li>
+          </ul>
+
+          <div class="emo-section-title">Healthy ways to respond</div>
+          <ul class="tip-list">
+            <li>
+              <span class="tip-icon">🌬️</span>
+              <span><strong>Deep breathing</strong> — slow, diaphragmatic breaths activate the
+              parasympathetic nervous system and reduce physiological arousal.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🏃</span>
+              <span><strong>Physical exercise</strong> — releases built-up tension and metabolises
+              stress hormones like adrenaline and cortisol.</span>
+            </li>
+            <li>
+              <span class="tip-icon">💬</span>
+              <span><strong>Assertive "I" statements</strong> — expressing feelings directly
+              and calmly (e.g. "I feel frustrated when…") rather than aggressively.</span>
+            </li>
+            <li>
+              <span class="tip-icon">⏸️</span>
+              <span><strong>Brief time-out</strong> — removing yourself from the situation briefly
+              lowers emotional arousal before you respond.</span>
+            </li>
+          </ul>
+
+          <div class="emo-citation">
+            📚 Sources: American Psychological Association (2023); Mayo Clinic (2022)
+          </div>
+        </div>
+      </article>
+
+      <!-- ── SAD ────────────────────────────────────────────── -->
+      <article class="emo-card emo-card-sad">
+        <div class="emo-header">
+          <div class="emo-emoji-wrap"><img src="/images/sad.png" alt="Sad"></div>
+          <div class="emo-title-block">
+            <div class="emo-name">Sadness</div>
+            <div class="emo-tagline">A response to loss or difficulty</div>
+          </div>
+        </div>
+        <div class="emo-body">
+
+          <div class="emo-section-title">What it is</div>
+          <p class="emo-definition">
+            Sadness is a normal emotional response to loss, disappointment, or
+            difficult life events. It is a healthy and necessary part of human experience
+            that typically passes with time. Experiencing sadness is different from
+            clinical depression, which is persistent and requires professional support.
+          </p>
+
+          <div class="emo-section-title">Common triggers</div>
+          <ul class="trigger-list">
+            <li>Loss or bereavement</li>
+            <li>Rejection or loneliness</li>
+            <li>Disappointment</li>
+            <li>Major life changes</li>
+            <li>Feeling misunderstood</li>
+          </ul>
+
+          <div class="emo-section-title">Healthy ways to respond</div>
+          <ul class="tip-list">
+            <li>
+              <span class="tip-icon">🤝</span>
+              <span><strong>Reach out to someone you trust</strong> — social support is one of the
+              strongest protective factors for emotional wellbeing.</span>
+            </li>
+            <li>
+              <span class="tip-icon">✍️</span>
+              <span><strong>Journaling</strong> — processing feelings through writing aids emotional
+              regulation and helps make sense of difficult experiences.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🚶</span>
+              <span><strong>Gentle movement</strong> — even a short walk can meaningfully improve
+              mood by releasing endorphins and shifting attention.</span>
+            </li>
+            <li>
+              <span class="tip-icon">💛</span>
+              <span><strong>Self-compassion</strong> — treating yourself with the same kindness you
+              would offer a good friend, rather than self-criticism.</span>
+            </li>
+          </ul>
+
+          <div class="emo-citation">
+            📚 Sources: World Health Organization (2023); Mind UK (2023); Harvard Health Publishing (2021)
+          </div>
+        </div>
+      </article>
+
+      <!-- ── HAPPY ──────────────────────────────────────────── -->
+      <article class="emo-card emo-card-happy">
+        <div class="emo-header">
+          <div class="emo-emoji-wrap"><img src="/images/happy.png" alt="Happy"></div>
+          <div class="emo-title-block">
+            <div class="emo-name">Happiness</div>
+            <div class="emo-tagline">Joy, contentment &amp; meaning</div>
+          </div>
+        </div>
+        <div class="emo-body">
+
+          <div class="emo-section-title">What it is</div>
+          <p class="emo-definition">
+            Happiness is a positive emotional state associated with joy, contentment,
+            and a sense of meaning. Researchers distinguish between hedonic wellbeing
+            (feeling good in the moment) and eudaimonic wellbeing (living a meaningful
+            life). Both dimensions contribute to lasting happiness.
+          </p>
+
+          <div class="emo-section-title">Common triggers</div>
+          <ul class="trigger-list">
+            <li>Strong social connection</li>
+            <li>Achieving goals</li>
+            <li>Acts of kindness</li>
+            <li>Gratitude</li>
+            <li>Flow &amp; engagement</li>
+          </ul>
+
+          <div class="emo-section-title">Healthy ways to sustain it</div>
+          <ul class="tip-list">
+            <li>
+              <span class="tip-icon">🙏</span>
+              <span><strong>Gratitude practice</strong> — regularly noting what you appreciate
+              measurably strengthens positive affect and life satisfaction.</span>
+            </li>
+            <li>
+              <span class="tip-icon">👥</span>
+              <span><strong>Nurture close relationships</strong> — quality social bonds are the
+              single strongest predictor of long-term wellbeing across research.</span>
+            </li>
+            <li>
+              <span class="tip-icon">✨</span>
+              <span><strong>Mindful savoring</strong> — consciously slowing down to appreciate
+              positive moments rather than rushing past them.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🎁</span>
+              <span><strong>Acts of kindness</strong> — giving to others consistently boosts your
+              own wellbeing, sometimes more than receiving.</span>
+            </li>
+          </ul>
+
+          <div class="emo-citation">
+            📚 Sources: Greater Good Science Center, UC Berkeley (2023); Harvard Health Publishing (2022)
+          </div>
+        </div>
+      </article>
+
+      <!-- ── CALM ───────────────────────────────────────────── -->
+      <article class="emo-card emo-card-calm">
+        <div class="emo-header">
+          <div class="emo-emoji-wrap"><img src="/images/calm.png" alt="Calm"></div>
+          <div class="emo-title-block">
+            <div class="emo-name">Calm</div>
+            <div class="emo-tagline">Safety, stillness &amp; regulation</div>
+          </div>
+        </div>
+        <div class="emo-body">
+
+          <div class="emo-section-title">What it is</div>
+          <p class="emo-definition">
+            Calm is a state of emotional and physiological regulation characterised by
+            low arousal, inner steadiness, and a sense of safety. It is associated with
+            activation of the parasympathetic nervous system — the body's natural
+            "rest and restore" mode. Calm is not passive; it can be actively cultivated.
+          </p>
+
+          <div class="emo-section-title">Common triggers</div>
+          <ul class="trigger-list">
+            <li>Rest &amp; adequate sleep</li>
+            <li>Time in nature</li>
+            <li>Mindfulness practice</li>
+            <li>Familiar, safe routines</li>
+            <li>Feeling in control</li>
+          </ul>
+
+          <div class="emo-section-title">Healthy ways to cultivate it</div>
+          <ul class="tip-list">
+            <li>
+              <span class="tip-icon">🧘</span>
+              <span><strong>Mindfulness meditation</strong> — consistent practice reduces cortisol
+              levels and stress reactivity, even in short daily sessions.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🌬️</span>
+              <span><strong>Slow, diaphragmatic breathing</strong> — directly activates the vagus
+              nerve and the parasympathetic nervous system within minutes.</span>
+            </li>
+            <li>
+              <span class="tip-icon">🏔️</span>
+              <span><strong>Time in nature</strong> — exposure to natural environments measurably
+              lowers heart rate, blood pressure, and cortisol.</span>
+            </li>
+            <li>
+              <span class="tip-icon">💪</span>
+              <span><strong>Progressive muscle relaxation</strong> — systematically tensing and
+              releasing muscle groups reduces physical tension held in the body.</span>
+            </li>
+          </ul>
+
+          <div class="emo-citation">
+            📚 Sources: Mayo Clinic (2023); American Psychological Association (2022); Harvard Health Publishing (2020)
+          </div>
+        </div>
+      </article>
+
+    </div><!-- end .emotion-cards -->
+  </main>
+
+  <!-- ── Myth vs Fact ──────────────────────────────────────────── -->
+  <section class="myth-section">
+    <div class="content-wrap" style="padding-top:0; padding-bottom:0;">
+      <p class="section-label">Common Misconceptions</p>
+      <h2 class="myth-heading">Myth vs. Fact</h2>
+      <p class="myth-subtext">Many unhelpful beliefs about emotions are passed on culturally. Science tells a different story.</p>
+      <div class="myth-grid">
+
+        <div class="myth-card">
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-myth">❌ Myth</span>
+            <p class="myth-text">"Negative emotions like anger and sadness are bad and should be suppressed."</p>
+          </div>
+          <div class="myth-divider"></div>
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-fact">✅ Fact</span>
+            <p class="myth-text">All emotions serve adaptive functions. Suppressing emotions is linked to poorer mental and physical health outcomes. Acknowledging them is the healthy first step.</p>
+          </div>
+        </div>
+
+        <div class="myth-card">
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-myth">❌ Myth</span>
+            <p class="myth-text">"Venting your anger — like punching a pillow — helps you release it."</p>
+          </div>
+          <div class="myth-divider"></div>
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-fact">✅ Fact</span>
+            <p class="myth-text">Research shows that catharsis through aggression can actually increase rather than reduce anger. Calm breathing and reappraisal are more effective regulation strategies.</p>
+          </div>
+        </div>
+
+        <div class="myth-card">
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-myth">❌ Myth</span>
+            <p class="myth-text">"Men shouldn't cry or express vulnerability — it's a sign of weakness."</p>
+          </div>
+          <div class="myth-divider"></div>
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-fact">✅ Fact</span>
+            <p class="myth-text">Emotional expression is healthy for everyone regardless of gender. Suppressing emotions is associated with higher stress, worse relationships, and greater risk of anxiety and depression.</p>
+          </div>
+        </div>
+
+        <div class="myth-card">
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-myth">❌ Myth</span>
+            <p class="myth-text">"Feeling sad for a long time means you have depression."</p>
+          </div>
+          <div class="myth-divider"></div>
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-fact">✅ Fact</span>
+            <p class="myth-text">Sadness is a normal human emotion, especially after loss or hardship. Clinical depression is a persistent disorder with specific diagnostic criteria and should be assessed by a professional.</p>
+          </div>
+        </div>
+
+        <div class="myth-card">
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-myth">❌ Myth</span>
+            <p class="myth-text">"Happy people don't have problems — they just think positively."</p>
+          </div>
+          <div class="myth-divider"></div>
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-fact">✅ Fact</span>
+            <p class="myth-text">Lasting happiness comes from meaningful relationships, purpose, and coping skills — not from avoiding problems. Forced positivity ("toxic positivity") can suppress legitimate emotional signals.</p>
+          </div>
+        </div>
+
+        <div class="myth-card">
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-myth">❌ Myth</span>
+            <p class="myth-text">"You can't control how you feel — emotions just happen to you."</p>
+          </div>
+          <div class="myth-divider"></div>
+          <div class="myth-row">
+            <span class="myth-badge myth-badge-fact">✅ Fact</span>
+            <p class="myth-text">While you cannot always choose an emotion, emotion regulation skills — such as cognitive reappraisal, mindfulness, and breathing — allow you to meaningfully influence your emotional responses.</p>
+          </div>
+        </div>
+
+      </div>
+      <p class="myth-credit">📚 Sources: Gross, J.J. (2015). <em>Handbook of Emotion Regulation.</em> Guilford Press; APA (2023); Mind UK (2023).</p>
+    </div>
+  </section>
+
+  <!-- ── Sources ──────────────────────────────────────────────── -->
+  <section class="sources-section">
+    <div class="sources-inner">
+      <h2 class="sources-title">📖 References</h2>
+      <ul class="source-list">
+        <li>
+          American Psychological Association. (2022). <em>Stress management: What is the relaxation response?</em>
+          Retrieved from apa.org
+        </li>
+        <li>
+          American Psychological Association. (2023). <em>Controlling anger before it controls you.</em>
+          Retrieved from apa.org
+        </li>
+        <li>
+          Greater Good Science Center, UC Berkeley. (2023). <em>What is happiness? The science of well-being.</em>
+          Retrieved from greatergood.berkeley.edu
+        </li>
+        <li>
+          Harvard Health Publishing. (2020). <em>Relaxation techniques: Breath control helps quell errant stress response.</em>
+          Harvard Medical School.
+        </li>
+        <li>
+          Harvard Health Publishing. (2021). <em>Exercising to relax.</em>
+          Harvard Medical School.
+        </li>
+        <li>
+          Harvard Health Publishing. (2022). <em>The health benefits of strong relationships.</em>
+          Harvard Medical School.
+        </li>
+        <li>
+          Mayo Clinic. (2022). <em>Anger management: 10 tips to tame your temper.</em>
+          Mayo Foundation for Medical Education and Research.
+        </li>
+        <li>
+          Mayo Clinic. (2023). <em>Mindfulness exercises.</em>
+          Mayo Foundation for Medical Education and Research.
+        </li>
+        <li>
+          Mind UK. (2023). <em>How to improve your mental wellbeing.</em>
+          Mind: For Better Mental Health. Retrieved from mind.org.uk
+        </li>
+        <li>
+          World Health Organization. (2023). <em>Mental health: Strengthening our response.</em>
+          WHO Fact Sheet. Retrieved from who.int
+        </li>
+        <li>
+          Gross, J.J. (2015). <em>Handbook of Emotion Regulation</em> (2nd ed.). Guilford Press.
+        </li>
+      </ul>
+    </div>
+    <p class="disclaimer">
+      This page is intended for educational purposes only. It does not constitute medical or psychological advice.
+      If you are struggling, please reach out to a qualified mental health professional.
+    </p>
+  </section>
+
+  <!-- ── Bottom Nav ───────────────────────────────────────────── -->
+  <nav class="bottom-nav">
+    <a href="/mood.html"      class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+    <a href="/journal.html"   class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
+    <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
+    <a href="/emotions.html"  class="bottom-nav-item active"><span class="nav-icon">📖</span><span>Learn</span></a>
+  </nav>
+
+  <script>
+    // Sync theme icon on load
+    (function () {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      var icon  = document.getElementById('theme-icon');
+      var label = document.getElementById('theme-label');
+      if (icon)  icon.textContent  = isDark ? '☀️' : '🌙';
+      if (label) label.textContent = isDark ? 'Light' : 'Dark';
+    })();
+  </script>
+</body>
+</html>
