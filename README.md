@@ -1,64 +1,58 @@
+# Mood Helper
 
-# Mood Helper App
+AI-Powered Facial Emotion Detection for Youth Mental Well-being
 
-**HKBU Final Year Project 2026**  
-A simple and friendly web application that helps young people check their mood every day and receive gentle support.
-
----
-
-### Main Features
-
-- AI Emotion Detection (camera or upload photo)
-- Automatic redirect to emotion support pages (Angry / Sad / Happy / Calm)
-- Meditation, Relaxing Music, and Workout Videos for each emotion
-- Mood Journal with notes
-- Daily Streak & Motivation
-- Dashboard and Calendar
-- Emergency Support (Hong Kong helplines)
+Final Year Honours Project | HKBU | 2025–2026
 
 ---
 
-### How to Run the App
+## How to Run
 
-1. Unzip the project folder.
+Open **two terminals** at the same time.
 
-2. Open **Terminal** (Mac) or **Command Prompt** (Windows) and go to the project root folder (`mood-helper-app`).
+**Terminal 1 — AI Backend**
+```bash
+source venv/bin/activate
+python mood_api.py
+```
 
-3. **Start the AI Backend** (must run first):
-   ``
-   cd ..                          
-   source venv/bin/activate       
-   python mood_api.py
-   ```
-   Wait until you see: `* Running on http://127.0.0.1:5001`
+**Terminal 2 — Frontend**
+```bash
+cd node-website
+node server.js
+```
 
-4. **Start the Website** (open a **new Terminal** window):
-   ```bash
-   cd node-website
-   node server.js
-   ```
-   You should see: `Website running at http://localhost:3000`
+Then open **http://localhost:3000** in your browser.
 
-5. Open your browser and visit:  
-   **http://localhost:3000**
+> Both terminals must be running at the same time.
 
 ---
 
-### How to Use
+## About
 
-- Click **"Let's check your mood now"** on the home page.
-- Take a photo or upload an image.
-- The AI will detect your emotion and redirect you.
-- You can manually correct the emotion if needed, then click **"Save to Mood Journal"**.
-- All records are saved in the browser (localStorage).
+A web application that detects facial emotions in real time using a Vision Transformer (ViT) model and provides personalised mental wellness recommendations.
 
----
+## Features
 
-### Notes
+- Real-time facial emotion detection via webcam or photo upload
+- Personalised music, meditation and workout recommendations
+- Mood Journal with local storage
+- Weekly mood stats dashboard
+- Daily check-in streak system
+- Dark mode support
+- Emergency mental health support (HK hotlines)
 
-- The AI model takes a few seconds to load the first time you run `python mood_api.py`.
-- All mood records are saved only in your browser. Clearing browser data will delete all records.
-- This project uses transfer learning to train the emotion model.
+## Model
 
+- Architecture: ViT-Base/16 fine-tuned on RAF-DB
+- Test Accuracy: 84.91% | Weighted F1: 0.8486
+- Classes: Angry / Happy / Sad / Calm
 
+## Tech Stack
 
+- Backend: Python, Flask, HuggingFace Transformers, PyTorch
+- Frontend: HTML5, CSS3, Vanilla JavaScript, Node.js, Express
+
+## Privacy
+
+All images are processed locally. No data is stored or transmitted externally.
