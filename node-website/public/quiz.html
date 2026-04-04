@@ -3,361 +3,457 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mood Quiz • Mood Helper</title>
+  <title>Emotion Check-In • Mood Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/shared.css">
   <script>
-    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
-    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
+    function applyTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('darkMode', t === 'dark' ? 'true' : 'false');
+    }
+    function toggleTheme() {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      document.getElementById('theme-icon').textContent  = next === 'dark' ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = next === 'dark' ? 'Light' : 'Dark';
+    }
+    (function () {
+      var s = localStorage.getItem('darkMode');
+      var isDark = s !== null ? s === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    })();
   </script>
   <style>
-    .page-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: sticky; top: 0; z-index: 50;
+    *, *::before, *::after { box-sizing: border-box; }
+    body, button, input, textarea { font-family: 'Nunito', system-ui, -apple-system, sans-serif; }
+    @keyframes pageLoad { from { opacity: 0; } to { opacity: 1; } }
+    body { animation: pageLoad 0.45s ease both; padding-top: 60px; padding-bottom: 72px; background: #f5f9fc; margin: 0; }
+    [data-theme="dark"] body { background: #0e1a24; }
+    @media (min-width: 768px) { body { padding-bottom: 0; } }
+
+    /* ── Top nav ─────────────────────────────────────────────── */
+    .top-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.25rem; height: 60px;
+      background: rgba(248,244,240,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(107,140,122,0.15);
     }
-    .progress-bar-wrap {
-      background: var(--border);
-      border-radius: 99px;
-      height: 6px;
-      overflow: hidden;
-      margin: 1.25rem 0 0.5rem;
+    [data-theme="dark"] .top-nav { background: rgba(13,8,32,0.92); border-color: rgba(167,139,250,0.15); }
+    .nav-logo { display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; font-weight: 900; color: #2d4a3e; text-decoration: none; }
+    [data-theme="dark"] .nav-logo { color: #c8e6d0; }
+    .nav-links { display: none; gap: 1.75rem; font-size: 0.88rem; font-weight: 700; }
+    @media (min-width: 768px) { .nav-links { display: flex; } }
+    .nav-links a { color: #5a7268; text-decoration: none; transition: color 0.18s; }
+    [data-theme="dark"] .nav-links a { color: #9bbfad; }
+    .nav-links a:hover { color: #6b8c7a; }
+    .dark-toggle {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 99px; border: none;
+      background: rgba(107,140,122,0.1); color: #2d4a3e;
+      font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700;
+      cursor: pointer; min-height: 36px; transition: background 0.2s;
     }
-    .progress-bar-fill {
-      height: 100%;
-      border-radius: 99px;
-      background: linear-gradient(90deg, #7C3AED, #A855F7);
-      transition: width 0.4s ease;
+    [data-theme="dark"] .dark-toggle { background: rgba(167,139,250,0.15); color: #c8e6d0; }
+
+    /* ── Bottom nav ──────────────────────────────────────────── */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: stretch;
+      background: rgba(248,244,240,0.97); backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(107,140,122,0.15); height: 64px;
     }
+    @media (min-width: 768px) { .bottom-nav { display: none; } }
+    [data-theme="dark"] .bottom-nav { background: rgba(13,8,32,0.97); border-color: rgba(167,139,250,0.15); }
+    .bottom-nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2px;
+      text-decoration: none; font-size: 0.65rem; font-weight: 700;
+      color: #9b8bc0; transition: color 0.18s;
+    }
+    .bottom-nav-item:hover, .bottom-nav-item.active { color: #6b8c7a; }
+    [data-theme="dark"] .bottom-nav-item:hover, [data-theme="dark"] .bottom-nav-item.active { color: #a8d5b8; }
+    .nav-icon { font-size: 1.35rem; }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .page-hero {
+      background: linear-gradient(145deg, #e8f5e9 0%, #f1f8f4 50%, #dcedc8 100%);
+      padding: 3rem 1.25rem 2.5rem; text-align: center;
+      position: relative; overflow: hidden;
+      border-bottom: 1px solid rgba(107,140,122,0.12);
+    }
+    [data-theme="dark"] .page-hero { background: linear-gradient(145deg, #0d1f15 0%, #0f1e18 50%, #0b1c10 100%); }
+    .page-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 15% 70%, rgba(129,199,132,0.35) 0%, transparent 55%),
+                  radial-gradient(circle at 85% 25%, rgba(165,214,167,0.28) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-block; font-size: 0.78rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: #388e3c; background: rgba(56,142,60,0.1);
+      border: 1px solid rgba(56,142,60,0.22);
+      padding: 0.3rem 0.9rem; border-radius: 99px; margin-bottom: 1rem; position: relative;
+    }
+    [data-theme="dark"] .hero-eyebrow { color: #81c784; background: rgba(129,199,132,0.1); border-color: rgba(129,199,132,0.22); }
+    .hero-title { font-size: clamp(1.75rem, 5vw, 2.6rem); font-weight: 900; line-height: 1.15; letter-spacing: -0.025em; color: #1b5e20; margin-bottom: 0.75rem; position: relative; }
+    [data-theme="dark"] .hero-title { color: #c8e6c9; }
+    .hero-intro { font-size: 0.97rem; color: #388e3c; max-width: 440px; margin: 0 auto; line-height: 1.7; font-weight: 600; position: relative; }
+    [data-theme="dark"] .hero-intro { color: #81c784; }
+
+    /* ── Main wrapper ────────────────────────────────────────── */
+    .quiz-wrap { max-width: 640px; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; }
+
+    /* ── Question card ───────────────────────────────────────── */
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .question-card {
-      background: var(--surface);
-      border-radius: 20px;
-      padding: 1.75rem 1.5rem;
-      margin-bottom: 1.25rem;
-      box-shadow: var(--shadow-sm);
-      border: 1.5px solid var(--border);
+      background: #fff; border-radius: 28px;
+      border: 1.5px solid rgba(107,140,122,0.14);
+      box-shadow: 0 6px 32px rgba(56,142,60,0.1);
+      padding: 2.25rem 1.75rem 1.75rem;
+      animation: slideIn 0.42s cubic-bezier(0.22,1,0.36,1) both;
     }
-    .q-number {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--primary);
-      margin-bottom: 0.6rem;
-    }
-    .q-text {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--text);
-      line-height: 1.45;
-      margin-bottom: 1.25rem;
-    }
-    .options-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.6rem;
-    }
-    .opt-btn {
-      padding: 0.75rem 0.5rem;
-      border-radius: 14px;
-      border: 2px solid var(--border);
-      background: var(--surface2);
-      color: var(--text-soft);
-      font-family: 'Nunito', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.18s;
-      text-align: center;
-      line-height: 1.3;
-    }
-    .opt-btn:hover { border-color: var(--primary); color: var(--primary); background: #f5f0ff; transform: translateY(-1px); }
-    .opt-btn.selected { border-color: var(--primary); background: linear-gradient(135deg,#7C3AED,#A855F7); color: #fff; }
-    [data-theme="dark"] .opt-btn:hover { background: #2d1f5e; }
-    [data-theme="dark"] .opt-btn.selected { background: linear-gradient(135deg,#7C3AED,#A855F7); }
+    [data-theme="dark"] .question-card { background: #0f2018; border-color: rgba(129,199,132,0.15); box-shadow: 0 6px 32px rgba(0,0,0,0.35); }
 
-    .nav-btns { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
-    .nav-btns .btn { flex: 1; justify-content: center; }
+    .question-emoji { font-size: 3rem; display: block; text-align: center; margin-bottom: 1rem; }
+    .question-text {
+      font-size: 1.2rem; font-weight: 900; color: #1b5e20;
+      line-height: 1.4; margin-bottom: 0.5rem; text-align: center;
+      letter-spacing: -0.015em;
+    }
+    [data-theme="dark"] .question-text { color: #c8e6c9; }
+    .question-sub {
+      font-size: 0.9rem; color: #6b8c7a; font-weight: 600;
+      text-align: center; margin-bottom: 2rem; line-height: 1.5;
+    }
+    [data-theme="dark"] .question-sub { color: #7ab89a; }
 
-    /* Result screen */
-    .result-screen { display: none; text-align: center; }
-    .result-emoji { font-size: 4rem; margin-bottom: 0.5rem; }
-    .result-score {
-      font-size: 3rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #7C3AED, #A855F7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    /* ── Options ─────────────────────────────────────────────── */
+    .options-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .option-btn {
+      display: flex; align-items: center; gap: 0.9rem;
+      padding: 1rem 1.15rem;
+      background: rgba(107,140,122,0.06); border: 1.5px solid rgba(107,140,122,0.18);
+      border-radius: 18px; cursor: pointer; text-align: left;
+      font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700;
+      color: #2d4a3e; transition: all 0.18s cubic-bezier(0.22,1,0.36,1); width: 100%;
     }
-    .result-label {
-      font-size: 1.2rem;
-      font-weight: 800;
-      color: var(--text);
-      margin: 0.25rem 0 1rem;
+    [data-theme="dark"] .option-btn { background: rgba(107,140,122,0.08); border-color: rgba(129,199,132,0.18); color: #b0d9b8; }
+    .option-btn:hover:not(:disabled) { background: rgba(107,140,122,0.14); border-color: rgba(107,140,122,0.38); transform: translateX(4px); }
+    .option-btn:disabled { cursor: default; opacity: 0.6; }
+    .option-btn.selected {
+      background: linear-gradient(135deg, rgba(107,140,122,0.22), rgba(107,140,122,0.12));
+      border-color: #6b8c7a; color: #1b5e20; opacity: 1;
     }
-    .result-desc {
-      font-size: 0.9rem;
-      color: var(--text-soft);
-      line-height: 1.6;
-      margin-bottom: 1.5rem;
+    [data-theme="dark"] .option-btn.selected { background: rgba(129,199,132,0.15); border-color: #81c784; color: #c8e6c9; }
+    .option-icon { font-size: 1.5rem; flex-shrink: 0; }
+
+    /* ── Instant advice panel ────────────────────────────────── */
+    @keyframes adviceIn {
+      from { opacity: 0; transform: translateY(18px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .result-tips {
-      background: var(--surface2);
-      border-radius: 16px;
-      padding: 1.1rem 1.25rem;
-      text-align: left;
-      margin-bottom: 1.25rem;
+    .advice-panel {
+      display: none; margin-top: 1.5rem;
+      background: linear-gradient(135deg, rgba(107,140,122,0.09), rgba(107,140,122,0.04));
+      border: 1.5px solid rgba(107,140,122,0.2);
+      border-radius: 20px; padding: 1.5rem 1.4rem;
+      animation: adviceIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
     }
-    .result-tips h4 { font-size: 0.8rem; font-weight: 800; letter-spacing:.08em; text-transform:uppercase; color: var(--primary); margin-bottom: 0.6rem; }
-    .result-tips li { font-size: 0.85rem; color: var(--text-soft); margin-bottom: 0.4rem; list-style: none; padding-left: 1.2rem; position: relative; }
-    .result-tips li::before { content: "✦"; position: absolute; left: 0; color: var(--primary); font-size: 0.7rem; top: 2px; }
+    [data-theme="dark"] .advice-panel { background: linear-gradient(135deg, rgba(107,140,122,0.16), rgba(107,140,122,0.08)); border-color: rgba(129,199,132,0.2); }
+    .advice-panel.visible { display: block; }
+
+    .advice-header {
+      display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1rem;
+    }
+    .advice-emoji { font-size: 1.8rem; }
+    .advice-title {
+      font-size: 1rem; font-weight: 900; color: #1b5e20; line-height: 1.3;
+    }
+    [data-theme="dark"] .advice-title { color: #c8e6c9; }
+
+    .tip-list { display: flex; flex-direction: column; gap: 0.65rem; margin-bottom: 1.25rem; }
+    .tip-item {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      background: rgba(255,255,255,0.7); border-radius: 14px;
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(107,140,122,0.1);
+    }
+    [data-theme="dark"] .tip-item { background: rgba(255,255,255,0.04); border-color: rgba(129,199,132,0.1); }
+    .tip-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 0.05rem; }
+    .tip-text { font-size: 0.88rem; font-weight: 700; color: #2d4a3e; line-height: 1.65; }
+    [data-theme="dark"] .tip-text { color: #a8d5b8; }
+    .tip-text strong { color: #1b5e20; }
+    [data-theme="dark"] .tip-text strong { color: #81c784; }
+
+    .advice-links { display: flex; flex-direction: column; gap: 0.6rem; }
+    .advice-link {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.8rem 1.1rem; border-radius: 14px; border: none;
+      font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 800;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.22,1,0.36,1);
+    }
+    .advice-link-primary {
+      background: linear-gradient(135deg, #6b8c7a, #4e7260); color: #fff;
+    }
+    .advice-link-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(107,140,122,0.35); }
+    .advice-link-secondary {
+      background: rgba(107,140,122,0.1); color: #2d4a3e;
+      border: 1.5px solid rgba(107,140,122,0.22);
+    }
+    [data-theme="dark"] .advice-link-secondary { background: rgba(107,140,122,0.15); color: #c8e6c9; border-color: rgba(129,199,132,0.22); }
+    .advice-link-secondary:hover { background: rgba(107,140,122,0.18); transform: translateY(-2px); }
+
+    .disclaimer {
+      margin-top: 1.5rem; font-size: 0.74rem; color: #7a9aab; line-height: 1.6;
+      font-weight: 600; text-align: center;
+      padding: 0.65rem 0.9rem; background: rgba(107,140,122,0.05);
+      border-radius: 10px;
+    }
+    [data-theme="dark"] .disclaimer { color: #4d7a8a; background: rgba(107,140,122,0.08); }
+
+    /* ── Reset button ────────────────────────────────────────── */
+    .reset-btn {
+      margin-top: 1.5rem; width: 100%; padding: 0.85rem;
+      background: transparent; border: 1.5px dashed rgba(107,140,122,0.35);
+      border-radius: 14px; color: #6b8c7a;
+      font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 800;
+      cursor: pointer; transition: all 0.18s; display: none;
+    }
+    .reset-btn.visible { display: block; }
+    [data-theme="dark"] .reset-btn { color: #7ab89a; border-color: rgba(107,140,122,0.35); }
+    .reset-btn:hover { background: rgba(107,140,122,0.06); }
   </style>
 </head>
-<body class="with-bottom-nav">
+<body>
 
-  <div class="page-header">
-    <a href="/mood.html" class="back-btn">Back</a>
-    <h1 style="font-size:1.2rem;font-weight:800;color:var(--text);">🧠 Mood Quiz</h1>
-  </div>
-
-  <div class="page-content" style="padding:1.25rem 0 5rem;">
-    <div class="container">
-
-      <!-- Quiz Screen -->
-      <div id="quiz-screen">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
-          <span style="font-size:0.8rem;font-weight:700;color:var(--text-muted);">Question <span id="q-current">1</span> of <span id="q-total"></span></span>
-          <span style="font-size:0.8rem;font-weight:700;color:var(--primary);" id="q-percent">0%</span>
-        </div>
-        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-fill" style="width:0%"></div></div>
-
-        <div class="question-card fade-up">
-          <div class="q-number" id="q-label">Question 1</div>
-          <div class="q-text" id="q-text"></div>
-          <div class="options-grid" id="q-options"></div>
-        </div>
-
-        <div class="nav-btns">
-          <button class="btn btn-surface" id="btn-prev" onclick="prevQ()" style="display:none;">← Back</button>
-          <button class="btn" id="btn-next" onclick="nextQ()">Next →</button>
-        </div>
-      </div>
-
-      <!-- Result Screen -->
-      <div id="result-screen" class="result-screen fade-up">
-        <div class="card" style="padding:2rem 1.5rem;">
-          <div class="result-emoji" id="res-emoji"></div>
-          <div class="result-score" id="res-score"></div>
-          <div class="result-label" id="res-label"></div>
-          <div class="result-desc" id="res-desc"></div>
-          <div class="result-tips">
-            <h4>Recommended for you</h4>
-            <ul id="res-tips"></ul>
-          </div>
-          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
-            <button onclick="restartQuiz()" class="btn btn-surface" style="flex:1;">🔄 Retake Quiz</button>
-            <a href="/mood.html" class="btn" style="flex:1;justify-content:center;">🏠 Home</a>
-          </div>
-        </div>
-      </div>
-
+  <!-- ── Top Nav ──────────────────────────────────────────────── -->
+  <nav class="top-nav">
+    <a href="/mood.html" class="nav-logo"><span>🌿</span><span>Mood Helper</span></a>
+    <div class="nav-links">
+      <a href="/mood.html">Home</a>
+      <a href="/how-to-start.html">How to Start</a>
+      <a href="/journal.html">Journal</a>
+      <a href="/dashboard.html">Stats</a>
     </div>
-  </div>
+    <button class="dark-toggle" onclick="toggleTheme()">
+      <span id="theme-icon">🌙</span><span id="theme-label">Dark</span>
+    </button>
+  </nav>
 
-  <!-- Bottom Nav -->
+  <!-- ── Hero ─────────────────────────────────────────────────── -->
+  <header class="page-hero">
+    <span class="hero-eyebrow">Emotion Check-In</span>
+    <h1 class="hero-title">How are you<br>feeling right now?</h1>
+    <p class="hero-intro">
+      Choose what fits best — and we'll suggest ways to help you feel better.
+    </p>
+  </header>
+
+  <!-- ── Quiz ─────────────────────────────────────────────────── -->
+  <main class="quiz-wrap">
+
+    <div class="question-card" id="questionCard">
+      <span class="question-emoji">💭</span>
+      <div class="question-text">What emotion feels closest to what you're experiencing?</div>
+      <div class="question-sub">No right or wrong answers — just pick what resonates.</div>
+
+      <div class="options-list" id="optionsList">
+        <button class="option-btn" onclick="showAdvice('angry')">
+          <span class="option-icon">😠</span>
+          <span>Angry or frustrated</span>
+        </button>
+        <button class="option-btn" onclick="showAdvice('sad')">
+          <span class="option-icon">😢</span>
+          <span>Sad or low</span>
+        </button>
+        <button class="option-btn" onclick="showAdvice('anxious')">
+          <span class="option-icon">😰</span>
+          <span>Anxious or overwhelmed</span>
+        </button>
+        <button class="option-btn" onclick="showAdvice('happy')">
+          <span class="option-icon">😊</span>
+          <span>Happy or excited</span>
+        </button>
+        <button class="option-btn" onclick="showAdvice('calm')">
+          <span class="option-icon">😌</span>
+          <span>Calm or peaceful</span>
+        </button>
+        <button class="option-btn" onclick="showAdvice('numb')">
+          <span class="option-icon">😶</span>
+          <span>Numb or unsure</span>
+        </button>
+      </div>
+
+      <!-- Instant advice panel — shown immediately after selection -->
+      <div class="advice-panel" id="advicePanel">
+        <div class="advice-header">
+          <span class="advice-emoji" id="adviceEmoji"></span>
+          <div class="advice-title" id="adviceTitle"></div>
+        </div>
+        <div class="tip-list" id="tipList"></div>
+        <div class="advice-links" id="adviceLinks"></div>
+        <p class="disclaimer">
+          This is a self-reflection tool, not a clinical assessment. If you're struggling, please speak to a trusted adult or mental health professional.
+        </p>
+      </div>
+    </div>
+
+    <button class="reset-btn" id="resetBtn" onclick="resetQuiz()">↩ Choose a different emotion</button>
+
+  </main>
+
+  <!-- ── Bottom Nav ───────────────────────────────────────────── -->
   <nav class="bottom-nav">
     <a href="/mood.html"      class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
     <a href="/journal.html"   class="bottom-nav-item"><span class="nav-icon">📔</span><span>Journal</span></a>
     <a href="/dashboard.html" class="bottom-nav-item"><span class="nav-icon">📊</span><span>Stats</span></a>
-    <a href="/streak.html"    class="bottom-nav-item"><span class="nav-icon">🔥</span><span>Streak</span></a>
+    <a href="/emotions.html"  class="bottom-nav-item"><span class="nav-icon">📖</span><span>Learn</span></a>
   </nav>
 
   <script>
-    const questions = [
-      {
-        text: "How would you describe your energy level today?",
-        options: [
-          { label: "😴 Very low — exhausted", score: 0 },
-          { label: "😐 Low — tired", score: 1 },
-          { label: "🙂 Okay — manageable", score: 2 },
-          { label: "⚡ High — energised", score: 3 }
+    const adviceData = {
+      angry: {
+        emoji: '😠',
+        title: 'Feeling angry or frustrated is completely valid.',
+        tips: [
+          { icon: '⏸️', text: '<strong>Try the 5-second pause.</strong> Before reacting, count slowly to 5. This gives your brain time to shift from reaction to response.' },
+          { icon: '🚶', text: '<strong>Move your body.</strong> A brisk walk, jumping jacks, or even stepping outside can help release the physical energy anger creates.' },
+          { icon: '📝', text: '<strong>Write it out.</strong> Putting your feelings into words — even in a private note — can reduce their intensity and help you understand what triggered you.' },
+        ],
+        links: [
+          { label: '💪 Workout for Anger', href: '/workout-angry.html', primary: true },
+          { label: '🧘 Meditation for Anger', href: '/meditation-angry.html', primary: false },
+          { label: '📖 Learn about emotions', href: '/emotions.html', primary: false },
         ]
       },
-      {
-        text: "How well did you sleep last night?",
-        options: [
-          { label: "😫 Barely slept", score: 0 },
-          { label: "😕 Restless", score: 1 },
-          { label: "😌 Decent sleep", score: 2 },
-          { label: "😴 Slept great", score: 3 }
+      sad: {
+        emoji: '😢',
+        title: 'Feeling sad is a natural part of being human.',
+        tips: [
+          { icon: '🤝', text: '<strong>Reach out to someone you trust.</strong> You don\'t have to manage this alone. A short message or call to a friend can make a real difference.' },
+          { icon: '🌿', text: '<strong>Allow yourself to feel it.</strong> Letting yourself experience sadness — rather than pushing it away — helps it pass more naturally.' },
+          { icon: '🎵', text: '<strong>Try music or gentle movement.</strong> Soft music or a short walk outdoors can gently shift your mood without forcing positivity.' },
+        ],
+        links: [
+          { label: '🎵 Music for Sadness', href: '/music-sad.html', primary: true },
+          { label: '🧘 Meditation for Sadness', href: '/meditation-sad.html', primary: false },
+          { label: '📔 Write in your journal', href: '/journal.html', primary: false },
         ]
       },
-      {
-        text: "How connected do you feel to people around you?",
-        options: [
-          { label: "🙈 Very alone", score: 0 },
-          { label: "😶 A bit isolated", score: 1 },
-          { label: "🤝 Somewhat connected", score: 2 },
-          { label: "💛 Very connected", score: 3 }
+      anxious: {
+        emoji: '😰',
+        title: 'Anxiety is your brain trying to protect you.',
+        tips: [
+          { icon: '🌬️', text: '<strong>Try box breathing.</strong> Breathe in for 4 counts, hold for 4, breathe out for 4, hold for 4. Repeat 3–4 times to calm your nervous system.' },
+          { icon: '🔍', text: '<strong>Name five things you can see.</strong> Grounding yourself in the present moment can interrupt anxious thought spirals quickly and effectively.' },
+          { icon: '📋', text: '<strong>Break it down.</strong> If you\'re overwhelmed, write down one small thing you can do right now. Action — even tiny — reduces helplessness.' },
+        ],
+        links: [
+          { label: '🧘 Calming Meditation', href: '/meditation-calm.html', primary: true },
+          { label: '🎵 Calm Music', href: '/music-calm.html', primary: false },
+          { label: '📖 Learn about emotions', href: '/emotions.html', primary: false },
         ]
       },
-      {
-        text: "How stressed or anxious have you felt today?",
-        options: [
-          { label: "😰 Overwhelmed", score: 0 },
-          { label: "😬 Quite stressed", score: 1 },
-          { label: "😐 A little tense", score: 2 },
-          { label: "😊 Calm & relaxed", score: 3 }
+      happy: {
+        emoji: '😊',
+        title: 'That\'s wonderful — let\'s make the most of it!',
+        tips: [
+          { icon: '📝', text: '<strong>Capture this feeling.</strong> Writing down what\'s making you happy right now helps your brain remember it — and creates a resource to return to on harder days.' },
+          { icon: '🤝', text: '<strong>Share it with someone.</strong> Positive emotions grow when shared. Tell a friend what\'s going well — it strengthens both your bond and your wellbeing.' },
+          { icon: '🎯', text: '<strong>Ride the wave.</strong> Good energy is great for tackling tasks you\'ve been putting off. Use this momentum to do something meaningful.' },
+        ],
+        links: [
+          { label: '🎵 Music for Happy Mood', href: '/music-happy.html', primary: true },
+          { label: '💪 Happy Workout', href: '/workout-happy.html', primary: false },
+          { label: '📔 Log this mood', href: '/journal.html', primary: false },
         ]
       },
-      {
-        text: "How motivated do you feel to do things you enjoy?",
-        options: [
-          { label: "💀 Zero motivation", score: 0 },
-          { label: "😑 Hard to start", score: 1 },
-          { label: "🙂 Some motivation", score: 2 },
-          { label: "🚀 Fully motivated", score: 3 }
+      calm: {
+        emoji: '😌',
+        title: 'Calm is a great place to be — nurture it.',
+        tips: [
+          { icon: '🧘', text: '<strong>Deepen your calm with mindfulness.</strong> Even 5 minutes of quiet breathing or meditation can strengthen your sense of inner peace.' },
+          { icon: '📔', text: '<strong>Reflect and plan.</strong> Calm moments are ideal for journalling, setting intentions, or thinking about what matters most to you.' },
+          { icon: '🌱', text: '<strong>Notice what brought you here.</strong> Understanding what helps you feel calm means you can return to it more intentionally in the future.' },
+        ],
+        links: [
+          { label: '🧘 Calm Meditation', href: '/meditation-calm.html', primary: true },
+          { label: '🎵 Calm Music', href: '/music-calm.html', primary: false },
+          { label: '📔 Write in your journal', href: '/journal.html', primary: false },
         ]
       },
-      {
-        text: "How positive or hopeful do you feel about tomorrow?",
-        options: [
-          { label: "😞 Not at all", score: 0 },
-          { label: "😕 Not very hopeful", score: 1 },
-          { label: "🙂 Somewhat hopeful", score: 2 },
-          { label: "🌟 Very optimistic", score: 3 }
+      numb: {
+        emoji: '😶',
+        title: 'Feeling numb or unsure is more common than you think.',
+        tips: [
+          { icon: '🌡️', text: '<strong>Start with a body scan.</strong> Close your eyes and slowly notice how each part of your body feels — tension, warmth, heaviness. Physical sensations often carry emotional clues.' },
+          { icon: '📔', text: '<strong>Write without a goal.</strong> Open a blank page and write anything — even "I don\'t know what I\'m feeling." This can gently open the door to self-understanding.' },
+          { icon: '🚶', text: '<strong>A gentle change of scene.</strong> Sometimes numbness is your system protecting you. A short walk or change of environment can help feelings surface safely.' },
+        ],
+        links: [
+          { label: '📖 Learn about emotions', href: '/emotions.html', primary: true },
+          { label: '📔 Write in your journal', href: '/journal.html', primary: false },
+          { label: '🧘 Gentle Meditation', href: '/meditation-calm.html', primary: false },
         ]
       }
-    ];
+    };
 
-    const results = [
-      {
-        min: 0, max: 5,
-        emoji: "💜", label: "You need some care",
-        desc: "Your well-being score suggests you're going through a tough time. That's okay — everyone has hard days. Try to be gentle with yourself and reach out if you need support.",
-        tips: ["Try a short guided meditation", "Listen to calming music", "Write your feelings in the journal", "Consider talking to someone you trust"]
-      },
-      {
-        min: 6, max: 10,
-        emoji: "💛", label: "Room to grow",
-        desc: "You're managing, but your energy and mood could use a boost. Small positive habits can make a big difference over time.",
-        tips: ["A short walk or light workout", "Try a breathing exercise", "Connect with a friend today", "Write down 3 things you're grateful for"]
-      },
-      {
-        min: 11, max: 15,
-        emoji: "💚", label: "Doing well!",
-        desc: "Your well-being is in a good place! You're coping effectively and feeling fairly balanced. Keep it up!",
-        tips: ["Keep your daily streak going 🔥", "Explore a new workout routine", "Help someone else — it boosts your mood too", "Celebrate your progress!"]
-      },
-      {
-        min: 16, max: 18,
-        emoji: "🌟", label: "Thriving!",
-        desc: "You're in excellent mental shape right now — energised, connected, and positive. This is a great time to build on your momentum.",
-        tips: ["Share your positivity with others", "Try something new and challenging", "Journal your wins to remember this feeling", "Keep the streak alive!"]
-      }
-    ];
-
-    let current = 0;
-    let answers = new Array(questions.length).fill(null);
-
-    function init() {
-      document.getElementById('q-total').textContent = questions.length;
-      renderQuestion();
-    }
-
-    function renderQuestion() {
-      const q = questions[current];
-      document.getElementById('q-label').textContent = `Question ${current + 1}`;
-      document.getElementById('q-current').textContent = current + 1;
-      document.getElementById('q-text').textContent = q.text;
-
-      const pct = Math.round((current / questions.length) * 100);
-      document.getElementById('progress-fill').style.width = pct + '%';
-      document.getElementById('q-percent').textContent = pct + '%';
-
-      const optContainer = document.getElementById('q-options');
-      optContainer.innerHTML = '';
-      q.options.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'opt-btn' + (answers[current] === i ? ' selected' : '');
-        btn.textContent = opt.label;
-        btn.onclick = () => selectOption(i);
-        optContainer.appendChild(btn);
+    function showAdvice(mood) {
+      // Disable all buttons and highlight selected
+      document.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.45';
       });
+      // Highlight the clicked button
+      event.currentTarget.style.opacity = '1';
+      event.currentTarget.classList.add('selected');
 
-      document.getElementById('btn-prev').style.display = current > 0 ? 'block' : 'none';
-      document.getElementById('btn-next').textContent = current === questions.length - 1 ? 'See Results 🎯' : 'Next →';
+      const data = adviceData[mood];
+
+      document.getElementById('adviceEmoji').textContent = data.emoji;
+      document.getElementById('adviceTitle').textContent = data.title;
+
+      document.getElementById('tipList').innerHTML = data.tips.map(t =>
+        `<div class="tip-item">
+           <span class="tip-icon">${t.icon}</span>
+           <span class="tip-text">${t.text}</span>
+         </div>`
+      ).join('');
+
+      document.getElementById('adviceLinks').innerHTML = data.links.map(l =>
+        `<a href="${l.href}" class="advice-link ${l.primary ? 'advice-link-primary' : 'advice-link-secondary'}">${l.label}</a>`
+      ).join('');
+
+      const panel = document.getElementById('advicePanel');
+      panel.classList.add('visible');
+      // Scroll smoothly to advice
+      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+
+      document.getElementById('resetBtn').classList.add('visible');
     }
 
-    function selectOption(i) {
-      answers[current] = i;
-      document.querySelectorAll('.opt-btn').forEach((btn, idx) => {
-        btn.classList.toggle('selected', idx === i);
+    function resetQuiz() {
+      document.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = false;
+        b.style.opacity = '';
+        b.classList.remove('selected');
       });
+      document.getElementById('advicePanel').classList.remove('visible');
+      document.getElementById('resetBtn').classList.remove('visible');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function nextQ() {
-      if (answers[current] === null) {
-        document.getElementById('q-options').style.animation = 'none';
-        document.getElementById('q-options').offsetHeight;
-        document.getElementById('q-options').style.animation = 'shake 0.3s ease';
-        return;
-      }
-      if (current < questions.length - 1) {
-        current++;
-        renderQuestion();
-      } else {
-        showResult();
-      }
-    }
-
-    function prevQ() {
-      if (current > 0) { current--; renderQuestion(); }
-    }
-
-    function showResult() {
-      const totalScore = answers.reduce((sum, ansIdx, qi) => {
-        return sum + (ansIdx !== null ? questions[qi].options[ansIdx].score : 0);
-      }, 0);
-
-      const result = results.find(r => totalScore >= r.min && totalScore <= r.max);
-
-      document.getElementById('quiz-screen').style.display = 'none';
-      const rs = document.getElementById('result-screen');
-      rs.style.display = 'block';
-
-      document.getElementById('res-emoji').textContent = result.emoji;
-      document.getElementById('res-score').textContent = `${totalScore} / 18`;
-      document.getElementById('res-label').textContent = result.label;
-      document.getElementById('res-desc').textContent = result.desc;
-
-      const tipsEl = document.getElementById('res-tips');
-      tipsEl.innerHTML = result.tips.map(t => `<li>${t}</li>`).join('');
-
-      // Update progress bar to 100%
-      document.getElementById('progress-fill').style.width = '100%';
-      document.getElementById('q-percent').textContent = '100%';
-
-      // Save quiz result to localStorage
-      const entry = { date: new Date().toISOString().split('T')[0], score: totalScore, label: result.label };
-      const history = JSON.parse(localStorage.getItem('quizHistory') || '[]');
-      history.unshift(entry);
-      localStorage.setItem('quizHistory', JSON.stringify(history));
-    }
-
-    function restartQuiz() {
-      current = 0;
-      answers = new Array(questions.length).fill(null);
-      document.getElementById('quiz-screen').style.display = 'block';
-      document.getElementById('result-screen').style.display = 'none';
-      renderQuestion();
-    }
-
-    init();
+    // Initialise theme icon
+    (function () {
+      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      document.getElementById('theme-icon').textContent  = isDark ? '☀️' : '🌙';
+      document.getElementById('theme-label').textContent = isDark ? 'Light' : 'Dark';
+    })();
   </script>
 </body>
 </html>
