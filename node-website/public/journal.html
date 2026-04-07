@@ -1,16 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Mood Journal • Mood Helper</title>
   <link rel="stylesheet" href="/shared.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script>
-    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
-    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
-  </script>
   <style>
     .page-header {
       background: var(--surface);
@@ -107,12 +102,6 @@
   </nav>
 
   <script>
-    function updateThemeBtn() {
-      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-      document.getElementById('theme-icon').textContent = dark ? '☀️' : '🌙';
-    }
-    updateThemeBtn();
-
     let journal = JSON.parse(localStorage.getItem('moodJournal')) || [];
 
     function getMoodScore(mood) {

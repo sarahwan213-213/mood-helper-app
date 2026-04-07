@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,23 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/shared.css">
-  <script>
-    function applyTheme(t) {
-      document.documentElement.setAttribute('data-theme', t);
-      localStorage.setItem('darkMode', t === 'dark' ? 'true' : 'false');
-    }
-    function toggleTheme() {
-      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      document.getElementById('theme-icon').textContent  = next === 'dark' ? '☀️' : '🌙';
-      document.getElementById('theme-label').textContent = next === 'dark' ? 'Light' : 'Dark';
-    }
-    (function () {
-      var s = localStorage.getItem('darkMode');
-      var isDark = s !== null ? s === 'true' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    })();
-  </script>
   <style>
     /* ── Base overrides for soft blue / sage green palette ─────── */
     *, *::before, *::after { box-sizing: border-box; }
@@ -44,34 +27,19 @@
       background: rgba(248, 244, 240, 0.92); backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(107,140,122,0.15);
     }
-    [data-theme="dark"] .top-nav {
-      background: rgba(13, 8, 32, 0.92); border-color: rgba(167,139,250,0.15);
-    }
     .nav-logo {
       display: flex; align-items: center; gap: 0.5rem;
       font-size: 1.05rem; font-weight: 900; color: #2d4a3e; text-decoration: none;
     }
-    [data-theme="dark"] .nav-logo { color: #c8e6d0; }
     .nav-links {
       display: none; gap: 1.75rem; font-size: 0.88rem; font-weight: 700;
     }
     @media (min-width: 768px) { .nav-links { display: flex; } }
     .nav-links a { color: #5a7268; text-decoration: none; transition: color 0.18s; }
-    [data-theme="dark"] .nav-links a { color: #9bbfad; }
     .nav-links a:hover { color: #6b8c7a; }
-    .dark-toggle {
-      display: flex; align-items: center; gap: 0.4rem;
-      padding: 0.4rem 0.85rem; border-radius: 99px; border: none;
-      background: rgba(107,140,122,0.1); color: #2d4a3e;
-      font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700;
-      cursor: pointer; min-height: 36px; transition: background 0.2s;
-    }
-    [data-theme="dark"] .dark-toggle { background: rgba(167,139,250,0.15); color: #c8e6d0; }
-    .dark-toggle:hover { background: rgba(107,140,122,0.2); }
 
     /* ── Body padding ────────────────────────────────────────── */
     body { padding-top: 60px; padding-bottom: 72px; background: #f5f9fc; }
-    [data-theme="dark"] body { background: #0e1a24; }
     @media (min-width: 768px) { body { padding-bottom: 0; } }
 
     /* ── Bottom nav ──────────────────────────────────────────── */
@@ -82,9 +50,6 @@
       border-top: 1px solid rgba(107,140,122,0.15); height: 64px;
     }
     @media (min-width: 768px) { .bottom-nav { display: none; } }
-    [data-theme="dark"] .bottom-nav {
-      background: rgba(13, 8, 32, 0.97); border-color: rgba(167,139,250,0.15);
-    }
     .bottom-nav-item {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 2px;
@@ -92,8 +57,6 @@
       color: #9b8bc0; transition: color 0.18s;
     }
     .bottom-nav-item:hover, .bottom-nav-item.active { color: #6b8c7a; }
-    [data-theme="dark"] .bottom-nav-item:hover,
-    [data-theme="dark"] .bottom-nav-item.active { color: #a8d5b8; }
     .nav-icon { font-size: 1.35rem; }
 
     /* ── Hero ────────────────────────────────────────────────── */
@@ -104,9 +67,6 @@
       border-bottom: 1px solid rgba(107,140,122,0.12);
       position: relative;
       overflow: hidden;
-    }
-    [data-theme="dark"] .page-hero {
-      background: linear-gradient(145deg, #0d2233 0%, #0f1e2a 50%, #0b1c28 100%);
     }
     .page-hero::before {
       content: '';
@@ -122,18 +82,15 @@
       border: 1px solid rgba(58,127,160,0.22);
       padding: 0.3rem 0.9rem; border-radius: 99px; margin-bottom: 1rem;
     }
-    [data-theme="dark"] .hero-eyebrow { color: #7ecaed; background: rgba(126,202,237,0.1); border-color: rgba(126,202,237,0.2); }
     .hero-title {
       font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 900;
       line-height: 1.15; letter-spacing: -0.025em;
       color: #1a3d50; margin-bottom: 0.85rem; position: relative;
     }
-    [data-theme="dark"] .hero-title { color: #c8e9f5; }
     .hero-intro {
       font-size: 1rem; color: #3d6e84; max-width: 520px;
       margin: 0 auto; line-height: 1.7; font-weight: 600; position: relative;
     }
-    [data-theme="dark"] .hero-intro { color: #86bdd4; }
 
     /* ── Main content layout ─────────────────────────────────── */
     .content-wrap {
@@ -146,7 +103,6 @@
       text-transform: uppercase; color: #6b8c7a;
       text-align: center; margin-bottom: 1.5rem;
     }
-    [data-theme="dark"] .section-label { color: #7ab89a; }
 
     /* ── Emotion cards ───────────────────────────────────────── */
     .emotion-cards { display: flex; flex-direction: column; gap: 1.75rem; }
@@ -162,10 +118,6 @@
     .emo-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 12px 36px rgba(58,127,160,0.16);
-    }
-    [data-theme="dark"] .emo-card {
-      background: #0f2230; border-color: rgba(126,202,237,0.14);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
     }
 
     /* Card header strip */
@@ -197,32 +149,24 @@
     .emo-card-angry .emo-emoji-wrap { background: linear-gradient(135deg, #cae8f7, #a5d6f7); }
     .emo-card-angry .emo-name      { color: #1b5e7b; }
     .emo-card-angry .emo-tagline   { color: #5aaace; }
-    [data-theme="dark"] .emo-card-angry .emo-name    { color: #a5d6f7; }
-    [data-theme="dark"] .emo-card-angry .emo-tagline { color: #6ab8dc; }
 
     /* Sad */
     .emo-card-sad .emo-header { border-bottom: 2px solid rgba(150,200,230,0.3); }
     .emo-card-sad .emo-emoji-wrap { background: linear-gradient(135deg, #d5eef8, #b8dff2); }
     .emo-card-sad .emo-name      { color: #1a4f6b; }
     .emo-card-sad .emo-tagline   { color: #4a9abf; }
-    [data-theme="dark"] .emo-card-sad .emo-name    { color: #b8dff2; }
-    [data-theme="dark"] .emo-card-sad .emo-tagline { color: #5aaace; }
 
     /* Happy */
     .emo-card-happy .emo-header { border-bottom: 2px solid rgba(107,196,220,0.3); }
     .emo-card-happy .emo-emoji-wrap { background: linear-gradient(135deg, #d0eefa, #b0dff5); }
     .emo-card-happy .emo-name      { color: #1a5570; }
     .emo-card-happy .emo-tagline   { color: #3d9ac0; }
-    [data-theme="dark"] .emo-card-happy .emo-name    { color: #b0dff5; }
-    [data-theme="dark"] .emo-card-happy .emo-tagline { color: #4aaccf; }
 
     /* Calm */
     .emo-card-calm .emo-header { border-bottom: 2px solid rgba(90,186,214,0.3); }
     .emo-card-calm .emo-emoji-wrap { background: linear-gradient(135deg, #c9eaf7, #a0d5ef); }
     .emo-card-calm .emo-name      { color: #1a4a62; }
     .emo-card-calm .emo-tagline   { color: #2e8fb5; }
-    [data-theme="dark"] .emo-card-calm .emo-name    { color: #a0d5ef; }
-    [data-theme="dark"] .emo-card-calm .emo-tagline { color: #42a8ce; }
 
     /* Card body */
     .emo-body { padding: 0 1.6rem 1.5rem; }
@@ -232,14 +176,13 @@
       text-transform: uppercase; color: #6b8c7a; margin-bottom: 0.45rem;
       margin-top: 1.1rem;
     }
-    [data-theme="dark"] .emo-section-title { color: #7ab89a; }
+
 
     .emo-definition {
       font-size: 0.95rem; line-height: 1.7; color: #2e4a5c; font-weight: 600;
       background: rgba(165,214,247,0.12); border-left: 3px solid #81c4e8;
       padding: 0.75rem 1rem; border-radius: 0 12px 12px 0;
     }
-    [data-theme="dark"] .emo-definition { color: #a8d8ed; background: rgba(129,196,232,0.07); border-color: #4a9abf; }
 
     .trigger-list {
       list-style: none; padding: 0; margin: 0;
@@ -250,23 +193,18 @@
       background: rgba(165,214,247,0.22); border: 1px solid rgba(129,196,232,0.3);
       border-radius: 99px; padding: 0.3rem 0.85rem;
     }
-    [data-theme="dark"] .trigger-list li {
-      color: #8fcfe6; background: rgba(129,196,232,0.1); border-color: rgba(129,196,232,0.2);
-    }
 
     .tip-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.6rem; }
     .tip-list li {
       display: flex; align-items: flex-start; gap: 0.75rem;
       font-size: 0.92rem; line-height: 1.6; color: #2e4a5c; font-weight: 600;
     }
-    [data-theme="dark"] .tip-list li { color: #a0cee0; }
     .tip-icon {
       width: 28px; height: 28px; border-radius: 10px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       font-size: 0.95rem; margin-top: 0.1rem;
       background: rgba(165,214,247,0.28); border: 1px solid rgba(129,196,232,0.3);
     }
-    [data-theme="dark"] .tip-icon { background: rgba(129,196,232,0.1); border-color: rgba(129,196,232,0.2); }
 
     /* Citation strip */
     .emo-citation {
@@ -277,7 +215,6 @@
       font-size: 0.75rem; font-weight: 700; color: #5a7268;
       display: flex; align-items: center; gap: 0.5rem;
     }
-    [data-theme="dark"] .emo-citation { background: rgba(107,140,122,0.12); color: #7ab89a; }
 
     /* ── Myth vs Fact section ────────────────────────────────── */
     .myth-section {
@@ -285,19 +222,14 @@
       border-top: 1px solid rgba(107,140,122,0.12);
       padding: 3rem 0 3rem;
     }
-    [data-theme="dark"] .myth-section {
-      background: #0c1c28; border-color: rgba(126,202,237,0.1);
-    }
     .myth-heading {
       font-size: clamp(1.35rem, 3vw, 1.9rem); font-weight: 900;
       color: #1a3d50; text-align: center; margin: 0 0 0.5rem; letter-spacing: -0.02em;
     }
-    [data-theme="dark"] .myth-heading { color: #c8e9f5; }
     .myth-subtext {
       text-align: center; font-size: 0.9rem; color: #3d6e84; line-height: 1.7;
       font-weight: 600; max-width: 520px; margin: 0 auto 2rem;
     }
-    [data-theme="dark"] .myth-subtext { color: #7ab5cb; }
     .myth-grid {
       display: grid; gap: 1.25rem;
       grid-template-columns: 1fr;
@@ -314,10 +246,6 @@
       transform: translateY(-4px);
       box-shadow: 0 10px 30px rgba(58,127,160,0.14);
     }
-    [data-theme="dark"] .myth-card {
-      background: #0f2230; border-color: rgba(126,202,237,0.15);
-      box-shadow: 0 4px 18px rgba(0,0,0,0.3);
-    }
     .myth-row { padding: 1.1rem 1.2rem; }
     .myth-badge {
       display: inline-flex; align-items: center; gap: 0.35rem;
@@ -329,23 +257,18 @@
       background: rgba(239,100,100,0.1); color: #b93e3e;
       border: 1px solid rgba(239,100,100,0.22);
     }
-    [data-theme="dark"] .myth-badge-myth { color: #f08080; background: rgba(239,100,100,0.08); border-color: rgba(239,100,100,0.18); }
     .myth-badge-fact {
       background: rgba(80,185,130,0.12); color: #27734e;
       border: 1px solid rgba(80,185,130,0.25);
     }
-    [data-theme="dark"] .myth-badge-fact { color: #6fcfa0; background: rgba(80,185,130,0.08); border-color: rgba(80,185,130,0.2); }
     .myth-text {
       font-size: 0.88rem; line-height: 1.65; color: #2e4a5c; font-weight: 600; margin: 0;
     }
-    [data-theme="dark"] .myth-text { color: #a0cee0; }
     .myth-divider { height: 1px; background: rgba(129,196,232,0.18); }
-    [data-theme="dark"] .myth-divider { background: rgba(126,202,237,0.1); }
     .myth-credit {
       text-align: center; font-size: 0.76rem; color: #7a9aab; font-weight: 600;
       margin-top: 1.75rem;
     }
-    [data-theme="dark"] .myth-credit { color: #4d7a8a; }
 
     /* ── Sources section ─────────────────────────────────────── */
     .sources-section {
@@ -353,13 +276,11 @@
       border-top: 1px solid rgba(107,140,122,0.14);
       padding: 2.5rem 1.25rem;
     }
-    [data-theme="dark"] .sources-section { background: #0f2230; border-color: rgba(126,202,237,0.12); }
     .sources-inner { max-width: 860px; margin: 0 auto; }
     .sources-title {
       font-size: 1.1rem; font-weight: 900; color: #1a3d50; margin-bottom: 1.1rem;
       display: flex; align-items: center; gap: 0.6rem;
     }
-    [data-theme="dark"] .sources-title { color: #c8e9f5; }
     .source-list {
       list-style: none; padding: 0; margin: 0;
       display: flex; flex-direction: column; gap: 0.65rem;
@@ -371,7 +292,6 @@
     .source-list li::before {
       content: "–"; position: absolute; left: 0; color: #81c4e8; font-weight: 900;
     }
-    [data-theme="dark"] .source-list li { color: #7ab5cb; }
 
     /* ── Disclaimer box ──────────────────────────────────────── */
     .disclaimer {
@@ -380,7 +300,6 @@
       font-size: 0.78rem; color: #7a9aab; line-height: 1.65;
       font-weight: 600; text-align: center;
     }
-    [data-theme="dark"] .disclaimer { color: #4d7a8a; }
 
     /* ── Responsive: two-column grid on wide screens ─────────── */
     @media (min-width: 720px) {
@@ -808,15 +727,5 @@
     <a href="/emotions.html"  class="bottom-nav-item active"><span class="nav-icon">📖</span><span>Learn</span></a>
   </nav>
 
-  <script>
-    // Sync theme icon on load
-    (function () {
-      var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      var icon  = document.getElementById('theme-icon');
-      var label = document.getElementById('theme-label');
-      if (icon)  icon.textContent  = isDark ? '☀️' : '🌙';
-      if (label) label.textContent = isDark ? 'Light' : 'Dark';
-    })();
-  </script>
 </body>
 </html>

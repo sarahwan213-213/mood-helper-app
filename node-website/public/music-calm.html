@@ -1,15 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Music for Calm • Mood Helper</title>
   <link rel="stylesheet" href="/shared.css">
-  <script>
-    function applyTheme(t) { document.documentElement.setAttribute('data-theme', t); localStorage.setItem('darkMode', t==='dark'?'true':'false'); }
-    function toggleTheme() { applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-    (function(){ var s=localStorage.getItem('darkMode'); applyTheme(s!==null?(s==='true'?'dark':'light'):(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')); })();
-  </script>
   <style>
     .mood-header { background: linear-gradient(135deg,#10B981,#06B6D4); padding:1.5rem 1.25rem 1.25rem; }
     .track-play-btn { background: linear-gradient(135deg,#10B981,#06B6D4); color:#fff; }
